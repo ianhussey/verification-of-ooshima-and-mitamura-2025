@@ -1,0 +1,150 @@
+---
+title: "Verification of Ooshima & Mitamura (2025) 'Effects of perspective-taking training based on relational frame theory for cognitive empathy and emotional empathy'"
+subtitle: "Data processing"
+author: "Ian Hussey"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    code_folding: hide
+    highlight: haddock
+    theme: flatly
+    toc: yes
+    toc_float: yes
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(message = FALSE,
+                      warning = FALSE)
+```
+
+# Dependencies
+
+```{r}
+
+library(tidyverse)
+library(readxl)
+library(broom)
+library(janitor)
+library(effectsize)
+
+```
+
+# Data processing
+
+NB data loaded is not raw - participants with partial data have already been removed. Raw doesn't seem to be available on the OSF.
+
+```{r}
+
+data_pre_iri <- read_xlsx("../data/raw/all_law_data_pre.xlsx", sheet = "IRI law") |>
+  rename(id = No) |>
+  rename_with(.fn = ~ paste0("iri_", .), .cols = starts_with("Q")) |>
+  mutate(across(
+  c(iri_Q3, iri_Q4, iri_Q7, iri_Q12, iri_Q13, iri_Q14, iri_Q15, iri_Q18, iri_Q19),
+  ~ 6 - .x,
+  .names = "{.col}_rev"
+)) |>
+  mutate(
+    iri_pt_pre = iri_Q3_rev + iri_Q8 + iri_Q11 + iri_Q15_rev + iri_Q21 + iri_Q25 + iri_Q28,
+    iri_ec_pre = iri_Q2 + iri_Q4_rev + iri_Q9 + iri_Q14_rev + iri_Q18_rev + iri_Q20 + iri_Q22,
+    iri_fs_pre = iri_Q1 + iri_Q5 + iri_Q7_rev + iri_Q12_rev + iri_Q16 + iri_Q23 + iri_Q26,
+    iri_pd_pre = iri_Q6 + iri_Q10 + iri_Q13_rev + iri_Q17 + iri_Q19_rev + iri_Q24 + iri_Q27
+  ) |>
+  select(id, iri_pt_pre, iri_ec_pre, iri_fs_pre, iri_pd_pre)
+
+data_post_iri <- read_xlsx("../data/raw/all_law_data_post.xlsx", sheet = "IRI law") |>
+  rename(id = No) |>
+  rename_with(.fn = ~ paste0("iri_", .), .cols = starts_with("Q")) |>
+  mutate(across(
+  c(iri_Q3, iri_Q4, iri_Q7, iri_Q12, iri_Q13, iri_Q14, iri_Q15, iri_Q18, iri_Q19),
+  ~ 6 - .x,
+  .names = "{.col}_rev"
+)) |>
+  mutate(
+    iri_pt_post = iri_Q3_rev + iri_Q8 + iri_Q11 + iri_Q15_rev + iri_Q21 + iri_Q25 + iri_Q28,
+    iri_ec_post = iri_Q2 + iri_Q4_rev + iri_Q9 + iri_Q14_rev + iri_Q18_rev + iri_Q20 + iri_Q22,
+    iri_fs_post = iri_Q1 + iri_Q5 + iri_Q7_rev + iri_Q12_rev + iri_Q16 + iri_Q23 + iri_Q26,
+    iri_pd_post = iri_Q6 + iri_Q10 + iri_Q13_rev + iri_Q17 + iri_Q19_rev + iri_Q24 + iri_Q27
+  ) |>
+  select(id, iri_pt_post, iri_ec_post, iri_fs_post, iri_pd_post)
+
+# Add MES subscales (Self, Other, Affectedness, Perspective-taking, Imagination)
+data_pre_mes <- read_xlsx("../data/raw/all_law_data_pre.xlsx", sheet = "MES law") |>
+  rename(id = No) |>
+  rename_with(.fn = ~ paste0("mes_", .), .cols = starts_with("Q")) |>
+  # reverse score
+  mutate(across(c(mes_Q3, mes_Q10, mes_Q14, mes_Q15, mes_Q16, mes_Q22), ~6 - .x, .names = "{.col}_rev")) |>
+  # sum scores
+  mutate(
+    mes_other_pre = mes_Q3_rev + mes_Q7 + mes_Q12 + mes_Q14_rev + mes_Q20,
+    mes_self_pre = mes_Q6 + mes_Q13 + mes_Q19 + mes_Q21,
+    mes_affected_pre = mes_Q1 + mes_Q2 + mes_Q8 + mes_Q16_rev + mes_Q22_rev,
+    mes_perspective_pre = mes_Q4 + mes_Q9 + mes_Q10_rev + mes_Q17 + mes_Q23,
+    mes_imagination_pre = mes_Q5 + mes_Q11 + mes_Q15_rev + mes_Q18 + mes_Q24
+  ) |>
+  select(id, mes_other_pre, mes_self_pre, mes_affected_pre, mes_perspective_pre, mes_imagination_pre)
+
+data_post_mes <- read_xlsx("../data/raw/all_law_data_post.xlsx", sheet = "MES law") |>
+  rename(id = No) |>
+  rename_with(.fn = ~ paste0("mes_", .), .cols = starts_with("Q")) |>
+  # reverse score
+  mutate(across(c(mes_Q3, mes_Q10, mes_Q14, mes_Q15, mes_Q16, mes_Q22), ~6 - .x, .names = "{.col}_rev")) |>
+  # sum scores
+  mutate(
+    mes_other_post = mes_Q3_rev + mes_Q7 + mes_Q12 + mes_Q14_rev + mes_Q20,
+    mes_self_post = mes_Q6 + mes_Q13 + mes_Q19 + mes_Q21,
+    mes_affected_post = mes_Q1 + mes_Q2 + mes_Q8 + mes_Q16_rev + mes_Q22_rev,
+    mes_perspective_post = mes_Q4 + mes_Q9 + mes_Q10_rev + mes_Q17 + mes_Q23,
+    mes_imagination_post = mes_Q5 + mes_Q11 + mes_Q15_rev + mes_Q18 + mes_Q24
+  ) |>
+  select(id, mes_other_post, mes_self_post, mes_affected_post, mes_perspective_post, mes_imagination_post)
+
+# Add TSSQ subscales (Active, Conceptualization, Perspective, Present moment)
+data_pre_tssq <- read_xlsx("../data/raw/all_law_data_pre.xlsx", sheet = "TSSQ law") |>
+  rename(id = No) |>
+  rename_with(.fn = ~ paste0("tssq_", .), .cols = starts_with("Q")) |>
+  mutate(
+    tssq_active_pre = tssq_Q3 + tssq_Q9 + tssq_Q10 + tssq_Q14 + tssq_Q16 + tssq_Q17 + tssq_Q20,
+    tssq_conceptualization_pre = tssq_Q2 + tssq_Q7 + tssq_Q8 + tssq_Q11 + tssq_Q12 + tssq_Q18,
+    tssq_perspective_pre = tssq_Q1 + tssq_Q4 + tssq_Q6,
+    tssq_present_pre = tssq_Q5 + tssq_Q13 + tssq_Q15 + tssq_Q19
+  ) |>
+  select(id, tssq_active_pre, tssq_conceptualization_pre, tssq_perspective_pre, tssq_present_pre)
+
+# Add TSSQ subscales (Active, Conceptualization, Perspective, Present moment)
+data_post_tssq <- read_xlsx("../data/raw/all_law_data_post.xlsx", sheet = "TSSQ law") |>
+  rename(id = No) |>
+  rename_with(.fn = ~ paste0("tssq_", .), .cols = starts_with("Q")) |>
+  mutate(
+    tssq_active_post = tssq_Q3 + tssq_Q9 + tssq_Q10 + tssq_Q14 + tssq_Q16 + tssq_Q17 + tssq_Q20,
+    tssq_conceptualization_post = tssq_Q2 + tssq_Q7 + tssq_Q8 + tssq_Q11 + tssq_Q12 + tssq_Q18,
+    tssq_perspective_post = tssq_Q1 + tssq_Q4 + tssq_Q6,
+    tssq_present_post = tssq_Q5 + tssq_Q13 + tssq_Q15 + tssq_Q19
+  ) |>
+  select(id, tssq_active_post, tssq_conceptualization_post, tssq_perspective_post, tssq_present_post)
+
+# Combine into one dataset
+data_processed <- data_pre_iri |>
+  full_join(data_post_iri, by = "id") |>
+  full_join(data_pre_mes, by = "id") |>
+  full_join(data_post_mes, by = "id") |>
+  full_join(data_pre_tssq, by = "id") |>
+  full_join(data_post_tssq, by = "id")
+
+```
+
+# Exclusions
+
+The stated exclusion strategy doesn't make sense to me. 50% of the data will lie within the IQR range by definition, but the authors exclude a small proportion on only some subscales.
+
+"For each subcategory of each index, we applied the interquartile range (IQR) method to identify outliers, which are data points that fall outside the IQR. We conducted the data analysis by excluding outliers upon observation. Outliers were excluded if they were observed. An overview of outlier counts revealed four (n = 37) for MES Perspective-taking, one (n = 40) each for Self-orientation and Other-orientation, and one (n = 40) for the conceptualization of the TSSQ."
+
+I therefore simply do no exclusions in the below analyses.
+
+# Write to disk
+
+```{r}
+
+write_csv(data_processed, "../data/processed/data_processed.csv")
+
+```
+

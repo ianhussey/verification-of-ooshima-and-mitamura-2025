@@ -1,0 +1,352 @@
+---
+title: "Verification of Ooshima & Mitamura (2025) 'Effects of perspective-taking training based on relational frame theory for cognitive empathy and emotional empathy'"
+subtitle: "Comparison of reprocessed data against data stated as having been used in the analysis"
+author: "Ian Hussey"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    code_folding: hide
+    highlight: haddock
+    theme: flatly
+    toc: yes
+    toc_float: yes
+---
+
+# TODO
+
+- import_total.xlsx group variable: What is group? its in this data file and in the original r script but never used in the analyses.
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(message = FALSE,
+                      warning = FALSE)
+```
+
+# Dependencies
+
+```{r}
+
+library(tidyverse)
+library(readxl)
+library(broom)
+library(janitor)
+library(effectsize)
+library(patchwork)
+
+```
+
+# Load data
+
+There are three sets of data files present in the supplementary matrials on OSF, which do not seem to agree. I illustrate the point with just the MES perspective data but it may apply to others too.
+
+```{r}
+
+# MES PT
+data_mes_pt_1 <- read_xlsx("../data/original/MES_perspective.xlsx") |>
+  select(id = No, Gender, Age, pre, post)
+
+data_mes_pt_2 <- read_xlsx("../data/original/import_MESperspective.xlsx") |>
+  mutate(Age = as.character(Age)) |>
+  select(id = No, Gender, Age, pre = `視点取得_pre`, post = `視点取得_post`)
+
+# IRI PT
+data_iri_pt_1 <- read_xlsx("../data/original/IRI_PT.xlsx") |>
+  select(id = No, pre, post)
+
+data_iri_pt_2 <- read_xlsx("../data/original/import_total.xlsx") |>
+  mutate(Age = as.character(Age)) |>
+  select(id = No, pre = PT_pre, post = PT_post)
+
+# TSSQ PT
+data_tssq_pt_1 <- read_xlsx("../data/original/TSSQ_perspective.xlsx") |>
+  select(id = No, Gender, Age, pre, post)
+
+data_tssq_pt_2 <- read_xlsx("../data/original/import_total.xlsx") |>
+  mutate(Age = as.character(Age)) |>
+  select(id = No, pre = `視点取り_pre`, post = `視点取り_post`)
+
+
+# reprocessed
+data_reprocessed <- read_csv("../data/processed/data_processed.csv") |>
+  select(id, 
+         mes_perspective_pre, mes_perspective_post,
+         iri_pt_pre, iri_pt_post,
+         tssq_perspective_pre, tssq_perspective_post)
+
+```
+
+# Comparing the analytic dataset vs the other data original file
+
+There are two folders of data, "data" and "data for analysis". By their content and description, both would appear to be 'final' datasets that should in principle be identical. Test whether this is the case: 
+
+## IRI
+
+```{r}
+
+data_iri_pt <- full_join(data_iri_pt_1, 
+                         data_iri_pt_2,
+                         by = "id") |>
+  mutate(match = ifelse(pre.x == pre.y & post.x == post.y, TRUE, FALSE),
+         match_if_swapped = ifelse(pre.x == post.y & post.x == pre.y, TRUE, FALSE)) 
+
+data_iri_pt |>
+  summarize(proportion_match = mean(match))
+
+```
+
+Pre and post time points are identical in both data files.
+
+## MES
+
+```{r}
+
+data_mes_pt <- full_join(data_mes_pt_1, 
+                         data_mes_pt_2,
+                         by = c("id", "Gender", "Age")) |>
+  mutate(match = ifelse(pre.x == pre.y & post.x == post.y, TRUE, FALSE),
+         match_if_swapped = ifelse(pre.x == post.y & post.x == pre.y, TRUE, FALSE)) 
+
+data_mes_pt |>
+  summarize(proportion_match = mean(match),
+            proportion_match_if_swapped = mean(match_if_swapped))
+
+```
+
+Pre and post time points are swapped in one data file compared to the other. Which one is correct? This would flip the direction of the effect. Further below I recalculate the sum scores from the item level data to check. 
+
+## TSSQ
+
+```{r}
+
+data_tssq_pt <- full_join(data_tssq_pt_1, 
+                          data_tssq_pt_2,
+                          by = "id") |>
+  mutate(match = ifelse(pre.x == pre.y & post.x == post.y, TRUE, FALSE),
+         match_if_swapped = ifelse(pre.x == post.y & post.x == pre.y, TRUE, FALSE)) 
+
+data_tssq_pt |>
+  summarize(proportion_match = mean(match))
+
+```
+
+Pre and post time points are identical in both data files.
+
+# Comparing the analytic dataset with recalculated sum scores
+
+## IRI
+
+### Pre
+
+```{r}
+
+ggplot(data_iri_pt_2, aes(pre)) +
+  scale_x_continuous(limits = c(10, 40)) +
+  geom_histogram() +
+  theme_linedraw() +
+  ggtitle("Data for the IRI PT subscale at pre\nfrom the 'for analysis' file")
+
+ggplot(data_reprocessed, aes(iri_pt_pre)) +
+  scale_x_continuous(limits = c(10, 40), name = "pre") +
+  geom_histogram() +
+  theme_linedraw() +
+  ggtitle("Data for the IRI PT subscale at pre\nreprocessed from the item-level data")
+
+```
+
+### Post
+
+```{r}
+
+ggplot(data_iri_pt_2, aes(post)) +
+  scale_x_continuous(limits = c(10, 40)) +
+  geom_histogram() +
+  theme_linedraw() +
+  ggtitle("Data for the IRI PT subscale at post\nfrom the 'for analysis' file")
+
+ggplot(data_reprocessed, aes(iri_pt_post)) +
+  scale_x_continuous(limits = c(10, 40), name = "post") +
+  geom_histogram() +
+  theme_linedraw() +
+  ggtitle("Data for the IRI PT subscale at post\nreprocessed from the item-level data")
+
+```
+
+### Scatter
+
+```{r fig.height=4, fig.width=4}
+
+p_iri_orig <- ggplot(data_iri_pt_2, aes(pre, post)) +
+  scale_x_continuous(limits = c(10, 40)) +
+  scale_y_continuous(limits = c(10, 40)) +
+  #geom_point(alpha = 0.6) +
+  geom_jitter(alpha = 0.6, width = .2, height = .2, color = "#35B779FF") +
+  theme_linedraw() +
+  ggtitle("Data for the IRI PT subscale\nfrom the 'for analysis' file")
+
+p_iri_orig
+
+p_iri_new <- ggplot(data_reprocessed, aes(iri_pt_pre, iri_pt_post)) +
+  scale_x_continuous(limits = c(4, 37), name = "pre") +
+  scale_y_continuous(limits = c(4, 37), name = "post") +
+  #geom_point(alpha = 0.6) +
+  geom_jitter(alpha = 0.6, width = .2, height = .2, color = "#31688EFF") +
+  theme_linedraw() +
+  ggtitle("Data for the IRI PT subscale\nreprocessed from the item-level data")
+
+p_iri_new
+
+```
+
+## MES
+
+### Pre
+
+```{r}
+
+ggplot(data_mes_pt_2, aes(pre)) +
+  scale_x_continuous(limits = c(10, 30)) +
+  geom_histogram() +
+  theme_linedraw() +
+  ggtitle("Data for the MES PT subscale at pre\nfrom the 'for analysis' file")
+
+ggplot(data_reprocessed, aes(mes_perspective_pre)) +
+  scale_x_continuous(limits = c(10, 30), name = "pre") +
+  geom_histogram() +
+  theme_linedraw() +
+  ggtitle("Data for the MES PT subscale at pre\nreprocessed from the item-level data")
+
+```
+
+### Post
+
+```{r}
+
+ggplot(data_mes_pt_2, aes(post)) +
+  scale_x_continuous(limits = c(10, 30)) +
+  geom_histogram() +
+  theme_linedraw() +
+  ggtitle("Data for the MES PT subscale at post\nfrom the 'for analysis' file")
+
+ggplot(data_reprocessed, aes(mes_perspective_post)) +
+  scale_x_continuous(limits = c(10, 30), name = "post") +
+  geom_histogram() +
+  theme_linedraw() +
+  ggtitle("Data for the MES PT subscale at post\nreprocessed from the item-level data")
+
+```
+
+### Scatter
+
+```{r fig.height=4, fig.width=4}
+
+p_mes_orig <- ggplot(data_mes_pt_2, aes(pre, post)) +
+  scale_x_continuous(limits = c(10, 30)) +
+  scale_y_continuous(limits = c(10, 30)) +
+  #geom_point(alpha = 0.6) +
+  geom_jitter(alpha = 0.6, width = .2, height = .2, color = "#35B779FF") +
+  theme_linedraw() +
+  ggtitle("Data for the MES PT subscale\nfrom the 'for analysis' file")
+
+p_mes_orig
+
+p_mes_new <- ggplot(data_reprocessed, aes(mes_perspective_pre, mes_perspective_post)) +
+  scale_x_continuous(limits = c(10, 30), name = "pre") +
+  scale_y_continuous(limits = c(10, 30), name = "post") +
+  #geom_point(alpha = 0.6) +
+  geom_jitter(alpha = 0.6, width = .2, height = .2, color = "#31688EFF") +
+  theme_linedraw() +
+  ggtitle("Data for the MES PT subscale\nreprocessed from the item-level data")
+
+p_mes_new
+
+```
+
+## TSSQ
+
+### Pre
+
+```{r}
+
+ggplot(data_tssq_pt_2, aes(pre)) +
+  scale_x_continuous(limits = c(0, 25)) +
+  geom_histogram() +
+  theme_linedraw() +
+  ggtitle("Data for the TSSQ PT subscale at pre\nfrom the 'for analysis' file")
+
+ggplot(data_reprocessed, aes(tssq_perspective_pre)) +
+  scale_x_continuous(limits = c(0, 25), name = "pre") +
+  geom_histogram() +
+  theme_linedraw() +
+  ggtitle("Data for the MSSQ PT subscale at pre\nreprocessed from the item-level data")
+
+```
+
+### Post
+
+```{r}
+
+ggplot(data_tssq_pt_2, aes(post)) +
+  scale_x_continuous(limits = c(0, 25)) +
+  geom_histogram() +
+  theme_linedraw() +
+  ggtitle("Data for the TSSQ PT subscale at post\nfrom the 'for analysis' file")
+
+ggplot(data_reprocessed, aes(tssq_perspective_post)) +
+  scale_x_continuous(limits = c(0, 25), name = "post") +
+  geom_histogram() +
+  theme_linedraw() +
+  ggtitle("Data for the MSSQ PT subscale at post\nreprocessed from the item-level data")
+
+```
+
+### Scatter
+
+```{r fig.height=4, fig.width=4}
+
+p_tssq_orig <- ggplot(data_tssq_pt_2, aes(pre, post)) +
+  scale_x_continuous(limits = c(0, 25)) +
+  scale_y_continuous(limits = c(0, 25)) +
+  #geom_point(alpha = 0.6) +
+  geom_jitter(alpha = 0.6, width = .2, height = .2, color = "#35B779FF") +
+  theme_linedraw() +
+  ggtitle("Data for the TSSQ PT subscale\nfrom the 'for analysis' file")
+
+p_tssq_orig
+
+p_tssq_new <- ggplot(data_reprocessed, aes(tssq_perspective_pre, tssq_perspective_post)) +
+  scale_x_continuous(limits = c(0, 25), name = "pre") +
+  scale_y_continuous(limits = c(0, 25), name = "post") +
+  #geom_point(alpha = 0.6) +
+  geom_jitter(alpha = 0.6, width = .2, height = .2, color = "#31688EFF") +
+  theme_linedraw() +
+  ggtitle("Data for the TSSQ PT subscale\nreprocessed from the item-level data")
+
+p_tssq_new
+
+```
+
+## Combined scatter plots
+
+```{r fig.height=12, fig.width=8}
+
+p_iri_orig +
+  p_iri_new +
+  p_mes_orig +
+  p_mes_new +
+  p_tssq_orig +
+  p_tssq_new +
+  plot_layout(ncol = 2)
+
+dir.create("plots")
+ggsave("plots/plot_data_comparisons.png", width = 8, height = 12)
+
+```
+
+- TSSQ seems to recalculate fine
+- IRI and MES produce very different sum scores to that used in the analytic dataset
+
+
+
+
+
+
+

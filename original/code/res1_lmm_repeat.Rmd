@@ -1,0 +1,979 @@
+---
+title: "res1_lmm_repeat"
+output: html_document
+date: "2024-03-02"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#パッケージのダウンロード
+
+```{r package}
+install.packages("effsize")
+install.packages("apaTables")
+install.packages("MuMIn")
+
+library(MuMIn)
+library(lmerTest)
+library(glmmML)
+library(tidyverse)
+library(showtext)
+```
+
+# フォントのダウンロード
+
+```{r text, echo=FALSE}
+showtext_auto(enable = TRUE)
+font_add("NotoSansJP", regular = "/Users/ooshima/Documents/R/NotoSansJP.ttf")
+```
+
+# データのインポート
+
+```{r import}
+data_IRI_repeat <- read.csv("/Users/ooshima/Documents/R/Doctor/import_IRI_repeat.csv", na.strings="NULL")
+
+data_total_repeat <- read.csv("/Users/ooshima/Documents/R/Doctor/import_total_repeat.csv", na.strings="NULL")
+
+data_MES_self_repeat <- read.csv("/Users/ooshima/Documents/R/Doctor/import_MES_self_repeat.csv", na.strings=c("NA"))
+
+data_MES_other_repeat <- read.csv("/Users/ooshima/Documents/R/Doctor/import_MES_other_repeat.csv", na.strings="NULL")
+
+data_MES_pt_repeat <- read.csv("/Users/ooshima/Documents/R/Doctor/import_MES_pt_repeat.csv", na.strings="NULL")
+
+data_TSSQ_concept_repeat <- read.csv("/Users/ooshima/Documents/R/Doctor/import_TSSQ_concept_repeat.csv", na.strings="NULL")
+
+data_IRI_repeat$period <- factor(data_IRI_repeat$period)
+data_total_repeat$period <- factor(data_total_repeat$period)
+data_MES_self_repeat$period <- factor(data_MES_self_repeat$period)
+data_MES_other_repeat$period <- factor(data_MES_other_repeat$period)
+data_MES_pt_repeat$period <- factor(data_MES_pt_repeat$period)
+data_TSSQ_concept_repeat$period <- factor(data_TSSQ_concept_repeat$period)
+
+data_MES_self_repeat <- data_MES_self_repeat[-(81:84), ]
+data_MES_other_repeat <- data_MES_other_repeat[-(81:84), ]
+data_MES_pt_repeat <- data_MES_pt_repeat[-(75:77), ]
+data_TSSQ_concept_repeat <- data_TSSQ_concept_repeat[-(81:83), ]
+
+print(data_IRI_repeat)
+print(data_total_repeat)
+print(data_MES_self_repeat)
+print(data_MES_other_repeat)
+print(data_MES_pt_repeat)
+print(data_TSSQ_concept_repeat)
+
+```
+
+# 個人差　IRIの分析
+
+```{r }
+#時期×成績の交互作用
+pt_repeat <- lmer(PT ~ group + period + group*period + (1|ID), data = data_IRI_repeat)
+summary(pt_repeat)
+
+ec_repeat <- lmer(EC ~ group + period + group*period + (1|ID), data = data_IRI_repeat)
+summary(ec_repeat)
+
+fs_repeat <- lmer(FS ~ group + period + group*period + (1|ID), data = data_IRI_repeat)
+summary(fs_repeat)
+
+pd_repeat <- lmer(PD ~ group + period + group*period + (1|ID), data = data_IRI_repeat)
+summary(pd_repeat)
+
+r.squaredGLMM(pt_repeat)
+r.squaredGLMM(ec_repeat)
+r.squaredGLMM(fs_repeat)
+r.squaredGLMM(pd_repeat)
+
+#時期のみ
+pt_repeat2 <- lmer(PT ~ period + (1|ID), data = data_IRI_repeat)
+summary(pt_repeat2)
+
+ec_repeat2 <- lmer(EC ~ period + (1|ID), data = data_IRI_repeat)
+summary(ec_repeat2)
+
+fs_repeat2 <- lmer(FS ~ period + (1|ID), data = data_IRI_repeat)
+summary(fs_repeat2)
+
+pd_repeat2 <- lmer(PD ~ period + (1|ID), data = data_IRI_repeat)
+summary(pd_repeat2)
+
+#効果量
+r.squaredGLMM(pt_repeat2)
+r.squaredGLMM(ec_repeat2)
+r.squaredGLMM(fs_repeat2)
+r.squaredGLMM(pd_repeat2)
+
+#推定値の信頼区間
+pt_ci <- confint(pt_repeat2)
+pt_ci
+
+ec_ci <- confint(ec_repeat2)
+ec_ci
+
+fs_ci <- confint(fs_repeat2)
+fs_ci
+
+pd_ci <- confint(pd_repeat2)
+pd_ci
+
+#t valueの信頼区間
+pt_ci_t <- confint(pt_repeat2, "t")
+pt_ci_t
+
+ec_ci_t <- confint(ec_repeat2, "t")
+ec_ci_t
+
+fs_ci_t <- confint(fs_repeat2)
+fs_ci_t
+
+pd_ci_t <- confint(pd_repeat2)
+pd_ci_t
+
+```
+
+# 個人差　IRIの図示
+
+```{r }
+#予測値の取得
+data_IRI_repeat$pt_Predicted <- predict(pt_repeat, re.form = NA)
+data_IRI_repeat$ec_Predicted <- predict(ec_repeat, re.form = NA)
+data_IRI_repeat$fs_Predicted <- predict(fs_repeat, re.form = NA)
+data_IRI_repeat$pd_Predicted <- predict(pd_repeat, re.form = NA)
+
+
+# ggplot2を使用してランダム効果をプロット
+ggplot(data_IRI_repeat, aes(x = period, y = PT, group = ID)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = pt_Predicted, group = ID, color = "PT得点の予測値"), lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "PTの得点") +
+  theme_minimal()
+
+ggplot(data_IRI_repeat, aes(x = period, y = EC, group = ID)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = ec_Predicted, group = ID, color = "EC得点の予測値"), lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "ECの得点") +
+  theme_minimal()
+
+ggplot(data_IRI_repeat, aes(x = period, y = FS, group = ID)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = fs_Predicted, group = ID, color = "FS得点の予測値"), lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "fsの得点") +
+  theme_minimal()
+
+ggplot(data_IRI_repeat, aes(x = period, y = PD, group = ID)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = pd_Predicted, group = ID, color = "PD得点の予測値"), lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "PDの得点") +
+  theme_minimal()
+
+```
+
+# 個人差　MESの分析
+
+```{r MES}
+#時期×成績の交互作用
+pt2_repeat2 <- lmer(視点取得 ~ group + period + group*period + (1|ID), data = data_MES_pt_repeat)
+summary(pt2_repeat)
+
+self_repeat <- lmer(自己 ~ group + period + group*period + (1|ID), data = data_MES_self_repeat)
+summary(self_repeat)
+
+other_repeat <- lmer(他者 ~ group + period + group*period + (1|ID), data = data_MES_other_repeat)
+summary(other_repeat)
+
+fs2_repeat <- lmer(想像性 ~ group + period + group*period + (1|ID), data = data_total_repeat)
+summary(fs2_repeat)
+
+inf_repeat <- lmer(被影響性 ~ group + period + group*period + (1|ID), data = data_total_repeat)
+summary(inf_repeat)
+
+r.squaredGLMM(pt2_repeat)
+r.squaredGLMM(self_repeat)
+r.squaredGLMM(other_repeat)
+r.squaredGLMM(fs2_repeat)
+r.squaredGLMM(inf_repeat)
+
+#時期のみ
+pt2_repeat2 <- lmer(視点取得 ~ period + (1|ID), data = data_MES_pt_repeat)
+summary(pt2_repeat2)
+
+self_repeat2 <- lmer(自己 ~ period + (1|ID), data = data_MES_self_repeat)
+summary(self_repeat2)
+
+other_repeat2 <- lmer(他者 ~ period + (1|ID), data = data_MES_other_repeat)
+summary(other_repeat2)
+
+fs2_repeat2 <- lmer(想像性 ~ period + (1|ID), data = data_total_repeat)
+summary(fs2_repeat2)
+
+inf_repeat2 <- lmer(被影響性 ~ period + (1|ID), data = data_total_repeat)
+summary(inf_repeat2)
+
+#効果量
+r.squaredGLMM(pt2_repeat2)
+r.squaredGLMM(self_repeat2)
+r.squaredGLMM(other_repeat2)
+r.squaredGLMM(fs2_repeat2)
+r.squaredGLMM(inf_repeat2)
+
+#推定値の信頼区間
+pt2_ci <- confint(pt2_repeat2)
+pt2_ci
+
+self_ci <- confint(self_repeat2)
+self_ci
+
+other_ci <- confint(other_repeat2)
+other_ci
+
+fs2_ci <- confint(fs2_repeat2)
+fs2_ci
+
+inf_ci <- confint(inf_repeat2)
+inf_ci
+
+#t valueの信頼区間
+pt2_ci_t <- confint(pt2_repeat2)
+pt2_ci_t
+
+self_ci_t <- confint(self_repeat2)
+self_ci_t
+
+other_ci_t <- confint(other_repeat2)
+other_ci_t
+
+fs2_ci_t <- confint(fs2_repeat2)
+fs2_ci_t
+
+inf_ci_t <- confint(inf_repeat2)
+inf_ci_t
+
+```
+
+# 個人差　MESの図示
+
+```{r }
+#予測値の取得
+data_MES_pt_repeat$pt2_Predicted <- predict(pt2_repeat, re.form = NA)
+data_MES_self_repeat$self_Predicted <- predict(self_repeat, re.form = NA)
+data_MES_other_repeat$other_Predicted <- predict(other_repeat, re.form = NA)
+data_total_repeat$fs_Predicted <- predict(fs_repeat, re.form = NA)
+data_total_repeat$inf_Predicted <- predict(inf_repeat, re.form = NA)
+
+# ggplot2を使用してランダム効果をプロット
+ggplot(data_MES_pt_repeat, aes(x = period, y = 視点取得, group = ID)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = pt2_Predicted, group = ID, color = "視点取得の得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "視点取得の得点") +
+  theme_minimal()
+
+ggplot(data_MES_self_repeat, aes(x = period, y = 自己, group = ID)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = self_Predicted, group = ID, color = "自己の得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "自己の得点") +
+  theme_minimal()
+
+ggplot(data_MES_other_repeat, aes(x = period, y = 他者, group = ID)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = other_Predicted, group = ID, color = "他者の得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "他者の得点") +
+  theme_minimal()
+
+ggplot(data_total_repeat, aes(x = period, y = 想像性, group = ID)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = fs_Predicted, group = ID, color = "想像性の得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "想像性の得点") +
+  theme_minimal()
+
+ggplot(data_total_repeat, aes(x = period, y = 被影響性, group = ID)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = inf_Predicted, group = ID, color = "被影響性の得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "被影響性の得点") +
+  theme_minimal()
+
+```
+
+# 個人差　TSSQの分析
+
+```{r TSSQ}
+#時期×成績の交互作用
+pt3_repeat <- lmer(視点取り ~ group + period + group*period + (1|ID), data = data_total_repeat)
+summary(pt3_repeat)
+
+concep_repeat <- lmer(概念化 ~ group + period + group*period + (1|ID), data = data_TSSQ_concept_repeat)
+summary(concep_repeat)
+
+active_repeat <- lmer(アクティブ ~ group + period + group*period + (1|ID), data = data_total_repeat)
+summary(active_repeat)
+
+present_repeat <- lmer(今.この瞬間 ~ group + period + group*period + (1|ID), data = data_total_repeat)
+summary(present_repeat)
+
+r.squaredGLMM(pt3_repeat)
+r.squaredGLMM(concep_repeat)
+r.squaredGLMM(active_repeat)
+r.squaredGLMM(present_repeat)
+
+#時期のみ
+pt3_repeat2 <- lmer(視点取り ~ period + (1|ID), data = data_total_repeat)
+summary(pt3_repeat2)
+
+concep_repeat2 <- lmer(概念化 ~ period + (1|ID), data = data_TSSQ_concept_repeat)
+summary(concep_repeat2)
+
+active_repeat2 <- lmer(アクティブ ~ period + (1|ID), data = data_total_repeat)
+summary(active_repeat2)
+
+present_repeat2 <- lmer(今.この瞬間 ~  period  + (1|ID), data = data_total_repeat)
+summary(present_repeat2)
+
+#効果量
+r.squaredGLMM(pt3_repeat2)
+r.squaredGLMM(concep_repeat2)
+r.squaredGLMM(active_repeat2)
+r.squaredGLMM(present_repeat2)
+
+#推定値の信頼区間
+pt3_ci <- confint(pt3_repeat2)
+pt3_ci
+
+concep_ci <- confint(concep_repeat2)
+concep_ci
+
+active_ci <- confint(active_repeat2)
+active_ci
+
+present_ci <- confint(present_repeat2)
+present_ci
+
+#t valueの信頼区間
+pt3_ci_t <- confint(pt3_repeat2)
+pt3_ci_t
+
+concep_ci_t <- confint(concep_repeat2)
+concep_ci_t
+
+active_ci_t <- confint(active_repeat2)
+active_ci_t
+
+present_ci_t <- confint(present_repeat2)
+present_ci_t
+```
+
+# 個人差　TSSQの図示
+
+```{r TSSQ}
+#予測値の取得
+data_total_repeat$pt3_Predicted <- predict(pt3_repeat, re.form = NA)
+data_TSSQ_concept_repeat$concep_Predicted <- predict(concep_repeat, re.form = NA)
+data_total_repeat$active_Predicted <- predict(active_repeat, re.form = NA)
+data_total_repeat$present_Predicted <- predict(present_repeat, re.form = NA)
+
+# ggplot2を使用してランダム効果をプロット
+ggplot(data_total_repeat, aes(x = period, y = 視点取り, group = ID)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = pt3_Predicted, group = ID, color = "視点取りの得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "視点取りの得点") +
+  theme_minimal()
+
+ggplot(data_TSSQ_concept_repeat, aes(x = period, y = 概念化, group = ID)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = concep_Predicted, group = ID, color = "概念化の得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "概念化の得点") +
+  theme_minimal()
+
+ggplot(data_total_repeat, aes(x = period, y = アクティブ, group = ID)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = active_Predicted, group = ID, color = "アクティブの得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "アクティブの得点") +
+  theme_minimal()
+
+ggplot(data_total_repeat, aes(x = period, y = 今.この瞬間, group = ID)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = present_Predicted, group = ID, color = "今.この瞬間の得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "今.この瞬間の得点") +
+  theme_minimal()
+
+
+```
+
+# 正答率　IRIの分析
+
+```{r IRI}
+pt_repeat_ans <- lmer(PT ~  period + (1|total), data = data_IRI_repeat)
+summary(pt_repeat_ans)
+
+ec_repeat_ans <- lmer(EC ~ period  + (1|total), data = data_IRI_repeat)
+summary(ec_repeat_ans)
+
+fs_repeat_ans <- lmer(FS ~  period  + (1|total), data = data_IRI_repeat)
+summary(fs_repeat_ans)
+
+pd_repeat_ans <- lmer(PD ~ period + (1|total), data = data_IRI_repeat)
+summary(pd_repeat_ans)
+
+#効果量
+r.squaredGLMM(pt_repeat_ans)
+r.squaredGLMM(ec_repeat_ans)
+r.squaredGLMM(fs_repeat_ans)
+r.squaredGLMM(pd_repeat_ans)
+
+#推定値の信頼区間
+pt_ans_ci <- confint(pt_repeat_ans)
+pt_ans_ci
+
+ec_ans_ci <- confint(ec_repeat_ans)
+ec_ans_ci
+
+fs_ans_ci <- confint(fs_repeat_ans)
+fs_ans_ci
+
+pd_ans_ci <- confint(pd_repeat_ans)
+pd_ans_ci
+
+#t valueの信頼区間
+pt_ans_ci_t <- confint(pt_repeat_ans)
+pt_ans_ci_t
+
+ec_ans_ci_t <- confint(ec_repeat_ans)
+ec_ans_ci_t
+
+fs_ans_ci_t <- confint(fs_repeat_ans)
+fs_ans_ci
+
+pd_ans_ci_t <- confint(pd_repeat_ans)
+pd_ans_ci_t
+
+```
+
+# 正答率　IRIの図示
+
+```{r IRI}
+#予測値の取得
+data_IRI_repeat$pt_Predicted_ans <- predict(pt_repeat_ans, re.form = NA)
+data_IRI_repeat$ec_Predicted_ans <- predict(ec_repeat_ans, re.form = NA)
+data_IRI_repeat$fs_Predicted_ans <- predict(fs_repeat_ans, re.form = NA)
+data_IRI_repeat$pd_Predicted_ans <- predict(pd_repeat_ans, re.form = NA)
+
+
+# ggplot2を使用してランダム効果をプロット
+ggplot(data_IRI_repeat, aes(x = period, y = PT, group = total)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = pt_Predicted_ans, group = total, color = "PT得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "PTの得点") +
+  theme_minimal()
+
+ggplot(data_IRI_repeat, aes(x = period, y = EC, group = total)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = ec_Predicted_ans, group = total, color = "EC得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "ECの得点") +
+  theme_minimal()
+
+ggplot(data_IRI_repeat, aes(x = period, y = FS, group = total)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = fs_Predicted_ans, group = total, color = "FS得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "fsの得点") +
+  theme_minimal()
+
+ggplot(data_IRI_repeat, aes(x = period, y = PD, group = total)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = pd_Predicted_ans, group = total, color = "PD得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "PDの得点") +
+  theme_minimal()
+
+```
+
+# 正答率　MESの分析
+
+```{r MES}
+pt2_repeat_ans <- lmer(視点取得 ~ period + (1|total), data = data_MES_pt_repeat)
+summary(pt2_repeat_ans)
+
+self_repeat_ans <- lmer(自己 ~ period + (1|total), data = data_MES_self_repeat)
+summary(self_repeat_ans)
+
+other_repeat_ans <- lmer(他者 ~ period + (1|total), data = data_MES_other_repeat)
+summary(other_repeat_ans)
+
+fs2_repeat_ans <- lmer(想像性 ~ period + (1|total), data = data_total_repeat)
+summary(fs2_repeat_ans)
+
+inf_repeat_ans <- lmer(被影響性 ~ period + (1|total), data = data_total_repeat)
+summary(inf_repeat_ans)
+
+#効果量
+r.squaredGLMM(pt2_repeat_ans)
+r.squaredGLMM(self_repeat_ans)
+r.squaredGLMM(other_repeat_ans)
+r.squaredGLMM(fs2_repeat_ans)
+r.squaredGLMM(inf_repeat_ans)
+
+#推定値の信頼区間
+pt2_ans_ci <- confint(pt2_repeat_ans)
+pt2_ans_ci
+
+self_ans_ci <- confint(self_repeat_ans)
+self_ans_ci
+
+other_ans_ci <- confint(other_repeat_ans)
+other_ans_ci
+
+fs2_ans_ci <- confint(fs2_repeat_ans)
+fs2_ans_ci
+
+inf_ans_ci <- confint(inf_repeat_ans)
+inf_ans_ci
+
+#t valueの信頼区間
+pt2_ans_ci_t <- confint(pt2_repeat_ans)
+pt2_ans_ci_t
+
+self_ans_ci_t <- confint(self_repeat_ans)
+self_ans_ci_t
+
+other_ans_ci_t <- confint(other_repeat_ans)
+other_ans_ci_t
+
+fs2_ans_ci_t <- confint(fs2_repeat_ans)
+fs2_ans_ci_t
+
+inf_ans_ci_t <- confint(inf_repeat_ans)
+inf_ans_ci_t
+
+
+```
+
+# 正答率　MESの図示
+
+```{r MES}
+#予測値の取得
+data_MES_pt_repeat$pt2_Predicted_ans <- predict(pt2_repeat_ans, re.form = NA)
+data_MES_self_repeat$self_Predicted_ans <- predict(self_repeat_ans, re.form = NA)
+data_MES_other_repeat$other_Predicted_ans <- predict(other_repeat_ans, re.form = NA)
+data_total_repeat$fs_Predicted_ans <- predict(fs_repeat_ans, re.form = NA)
+data_total_repeat$inf_Predicted_ans <- predict(inf_repeat_ans, re.form = NA)
+
+# ggplot2を使用してランダム効果をプロット
+ggplot(data_MES_pt_repeat, aes(x = period, y = 視点取得, group = total)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = pt2_Predicted_ans, group = total, color = "視点取得の得点の予測値"),
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "視点取得の得点") +
+  theme_minimal()
+
+ggplot(data_MES_self_repeat, aes(x = period, y = 自己, group = total)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = self_Predicted_ans, group = total, color = "自己の得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "自己の得点") +
+  theme_minimal()
+
+ggplot(data_MES_other_repeat, aes(x = period, y = 他者, group = total)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = other_Predicted_ans, group = total, color = "他者の得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "他者の得点") +
+  theme_minimal()
+
+ggplot(data_total_repeat, aes(x = period, y = 想像性, group = total)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = fs_Predicted_ans, group = total, color = "想像性の得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "想像性の得点") +
+  theme_minimal()
+
+ggplot(data_total_repeat, aes(x = period, y = 被影響性, group = total)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = inf_Predicted_ans, group = total, color = "被影響性の得点の予測値"),
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "被影響性の得点") +
+  theme_minimal()
+
+```
+
+# 正答率　TSSQの分析
+
+```{r TSSQ}
+pt3_repeat_ans <- lmer(視点取り ~  period +  (1|total), data = data_total_repeat)
+summary(pt3_repeat_ans)
+
+concep_repeat_ans <- lmer(概念化 ~  period + (1|total), data = data_TSSQ_concept_repeat)
+summary(concep_repeat_ans)
+
+active_repeat_ans <- lmer(アクティブ ~ period + (1|total), data = data_total_repeat)
+summary(active_repeat_ans)
+
+present_repeat_ans <- lmer(今.この瞬間 ~ period + (1|total), data = data_total_repeat)
+summary(present_repeat_ans)
+
+#効果量
+r.squaredGLMM(pt3_repeat_ans)
+r.squaredGLMM(concep_repeat_ans)
+r.squaredGLMM(active_repeat_ans)
+r.squaredGLMM(present_repeat_ans)
+
+#推定値の信頼区間
+pt3_ans_ci <- confint(pt3_repeat_ans)
+pt3_ans_ci
+
+concep_ans_ci <- confint(concep_repeat_ans)
+concep_ans_ci
+
+active_ans_ci <- confint(active_repeat_ans)
+active_ans_ci
+
+present_ans_ci <- confint(present_repeat_ans)
+present_ans_ci
+
+#t valueの信頼区間
+pt3_ans_ci_t <- confint(pt3_repeat_ans)
+pt3_ans_ci_t
+
+concep_ans_ci_t <- confint(concep_repeat_ans)
+concep_ans_ci_t
+
+active_ans_ci_t <- confint(active_repeat_ans)
+active_ans_ci_t
+
+present_ans_ci_t <- confint(present_repeat_ans)
+present_ans_ci_t
+
+```
+
+# 正答率　TSSQの図示
+
+```{r TSSQ}
+#予測値の取得
+data_total_repeat$pt3_Predicted_ans <- predict(pt3_repeat_ans, re.form = NA)
+data_TSSQ_concept_repeat$concep_Predicted_ans <- predict(concep_repeat_ans, re.form = NA)
+data_total_repeat$active_Predicted_ans <- predict(active_repeat_ans, re.form = NA)
+data_total_repeat$present_Predicted_ans <- predict(present_repeat_ans, re.form = NA)
+
+# ggplot2を使用してランダム効果をプロット
+ggplot(data_total_repeat, aes(x = period, y = 視点取り, group = total)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = pt3_Predicted_ans, group = total, color = "視点取りの得点の予測値"),
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "視点取りの得点") +
+  theme_minimal()
+
+ggplot(data_TSSQ_concept_repeat, aes(x = period, y = 概念化, group = total)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = concep_Predicted_ans, group = total, color = "概念化の得点の予測値"), lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "概念化の得点") +
+  theme_minimal()
+
+ggplot(data_total_repeat, aes(x = period, y = アクティブ, group = total)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = active_Predicted_ans, group = total, color = "アクティブの得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "アクティブの得点") +
+  theme_minimal()
+
+ggplot(data_total_repeat, aes(x = period, y = 今.この瞬間, group = total)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = present_Predicted_ans, group = total, color = "今.この瞬間の得点の予測値"),  lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "今.この瞬間の得点") +
+  theme_minimal()
+
+
+```
+
+# 回答時間　IRIの分析
+
+```{r IRI}
+pt_repeat_time <- lmer(PT ~  period + (1|total_time), data = data_IRI_repeat)
+summary(pt_repeat_time)
+
+ec_repeat_time <- lmer(EC ~ period  + (1|total_time), data = data_IRI_repeat)
+summary(ec_repeat_time)
+
+fs_repeat_time <- lmer(FS ~  period  + (1|total_time), data = data_IRI_repeat)
+summary(fs_repeat_time)
+
+pd_repeat_time <- lmer(PD ~ period + (1|total_time), data = data_IRI_repeat)
+summary(pd_repeat_time)
+
+#効果量
+r.squaredGLMM(pt_repeat_time)
+r.squaredGLMM(ec_repeat_time)
+r.squaredGLMM(fs_repeat_time)
+r.squaredGLMM(pd_repeat_time)
+
+#推定値の信頼区間
+pt_time_ci <- confint(pt_repeat_time)
+pt_time_ci
+
+ec_time_ci <- confint(ec_repeat_time)
+ec_time_ci
+
+fs_time_ci <- confint(fs_repeat_time)
+fs_time_ci
+
+pd_time_ci <- confint(pd_repeat_time)
+pd_time_ci
+
+#t valueの信頼区間
+pt_time_ci_t <- confint(pt_repeat_time)
+pt_time_ci_t
+
+ec_time_ci_t <- confint(ec_repeat_time)
+ec_time_ci_t
+
+fs_time_ci_t <- confint(fs_repeat_time)
+fs_time_ci_t
+
+pd_time_ci_t <- confint(pd_repeat_time)
+pd_time_ci_t
+
+```
+
+# 回答時間　IRIの図示
+
+```{r IRI}
+#予測値の取得
+data_IRI_repeat$pt_Predicted_time <- predict(pt_repeat_time, re.form = NA)
+data_IRI_repeat$ec_Predicted_time <- predict(ec_repeat_time, re.form = NA)
+data_IRI_repeat$fs_Predicted_time <- predict(fs_repeat_time, re.form = NA)
+data_IRI_repeat$pd_Predicted_time <- predict(pd_repeat_time, re.form = NA)
+
+
+# ggplot2を使用してランダム効果をプロット
+ggplot(data_IRI_repeat, aes(x = period, y = PT, group = total_time)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = pt_Predicted_time, group = total_time, color =
+                  "PT得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "PTの得点") +
+  theme_minimal()
+
+ggplot(data_IRI_repeat, aes(x = period, y = EC, group = total_time)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = ec_Predicted_time, group = total_time, color = "EC得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "ECの得点") +
+  theme_minimal()
+
+ggplot(data_IRI_repeat, aes(x = period, y = FS, group = total_time)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = fs_Predicted_time, group = total_time, color = "FS得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "FSの得点") +
+  theme_minimal()
+
+ggplot(data_IRI_repeat, aes(x = period, y = PD, group = total_time)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = pd_Predicted_time, group = total_time, color = "PD得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "PDの得点") +
+  theme_minimal()
+
+```
+
+# 回答時間　MESの分析
+
+```{r MES}
+pt2_repeat_time <- lmer(視点取得 ~ period + (1|total_time), data = data_MES_pt_repeat)
+summary(pt2_repeat_time)
+
+self_repeat_time <- lmer(自己 ~ period + (1|total_time), data = data_MES_self_repeat)
+summary(self_repeat_time)
+
+other_repeat_time <- lmer(他者 ~ period + (1|total_time), data = data_MES_other_repeat)
+summary(other_repeat_time)
+
+fs2_repeat_time <- lmer(想像性 ~ period + (1|total_time), data = data_total_repeat)
+summary(fs2_repeat_time)
+
+inf_repeat_time <- lmer(被影響性 ~ period + (1|total_time), data = data_total_repeat)
+summary(inf_repeat_time)
+
+#効果量
+r.squaredGLMM(pt2_repeat_time)
+r.squaredGLMM(self_repeat_time)
+r.squaredGLMM(other_repeat_time)
+r.squaredGLMM(fs2_repeat_time)
+r.squaredGLMM(inf_repeat_time)
+
+#推定値の信頼区間
+pt2_time_ci <- confint(pt2_repeat_time)
+pt2_time_ci
+
+self_time_ci <- confint(self_repeat_time)
+self_time_ci
+
+other_time_ci <- confint(other_repeat_time)
+other_time_ci
+
+fs2_time_ci <- confint(fs2_repeat_time)
+fs2_time_ci
+
+inf_time_ci <- confint(inf_repeat_time)
+inf_time_ci
+
+#t valueの信頼区間
+pt2_time_ci_t <- confint(pt2_repeat_time)
+pt2_time_ci_t
+
+self_time_ci_t <- confint(self_repeat_time)
+self_time_ci_t
+
+other_time_ci_t <- confint(other_repeat_time)
+other_time_ci_t
+
+fs2_time_ci_t <- confint(fs2_repeat_time)
+fs2_time_ci_t
+
+inf_time_ci_t <- confint(inf_repeat_time)
+inf_time_ci_t
+
+```
+
+# 回答時間　MESの図示
+
+```{r MES}
+# 予測値の取得
+data_MES_pt_repeat$pt2_Predicted_time <- predict(pt2_repeat_time, re.form = NA)
+data_MES_self_repeat$self_Predicted_time <- predict(self_repeat_time, re.form = NA)
+data_MES_other_repeat$other_Predicted_time <- predict(other_repeat_time, re.form = NA)
+data_total_repeat$fs2_Predicted_time <- predict(fs2_repeat_time, re.form = NA)
+data_total_repeat$inf_Predicted_time <- predict(inf_repeat_time, re.form = NA)
+
+# ggplot2を使用してランダム効果をプロット
+ggplot(data_MES_pt_repeat, aes(x = period, y = 視点取得, group = total_time)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = pt2_Predicted_time, group = total_time, color = "視点取得の得点の予測値"),
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "視点取得の得点") +
+  theme_minimal()
+
+ggplot(data_MES_self_repeat, aes(x = period, y = 自己, group = total_time)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = self_Predicted_time, group = total_time, color = "自己の得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "自己の得点") +
+  theme_minimal()
+
+ggplot(data_MES_other_repeat, aes(x = period, y = 他者, group = total_time)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = other_Predicted_time, group = total_time, color = "他者の得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "他者の得点") +
+  theme_minimal()
+
+ggplot(data_total_repeat, aes(x = period, y = 想像性, group = total_time)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = fs2_Predicted_time, group = total_time, color = "想像性の得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "想像性の得点") +
+  theme_minimal()
+
+ggplot(data_total_repeat, aes(x = period, y = 被影響性, group = total_time)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = inf_Predicted_time, group = total_time, color = "被影響性の得点の予測値"),
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "被影響性の得点") +
+  theme_minimal()
+
+```
+
+# 回答時間　TSSQの分析
+
+```{r TSSQ}
+pt3_repeat_time <- lmer(視点取り ~  period +  (1|total_time), data = data_total_repeat)
+summary(pt3_repeat_time)
+
+concep_repeat_time <- lmer(概念化 ~  period + (1|total_time), data = data_TSSQ_concept_repeat)
+summary(concep_repeat_time)
+
+active_repeat_time <- lmer(アクティブ ~ period + (1|total_time), data = data_total_repeat)
+summary(active_repeat_time)
+
+present_repeat_time <- lmer(今.この瞬間 ~ period + (1|total_time), data = data_total_repeat)
+summary(present_repeat_time)
+
+#効果量
+r.squaredGLMM(pt3_repeat_time)
+r.squaredGLMM(concep_repeat_time)
+r.squaredGLMM(active_repeat_time)
+r.squaredGLMM(present_repeat_time)
+
+#推定値の信頼区間
+pt3_time_ci <- confint(pt3_repeat_time)
+pt3_time_ci
+
+concep_time_ci <- confint(concep_repeat_time)
+concep_time_ci
+
+active_time_ci <- confint(active_repeat_time)
+active_time_ci
+
+present_time_ci <- confint(present_repeat_time)
+present_time_ci
+
+#t valueの信頼区間
+pt3_time_ci_t <- confint(pt3_repeat_time)
+pt3_time_ci_t
+
+concep_time_ci_t <- confint(concep_repeat_time)
+concep_time_ci_t
+
+active_time_ci_t <- confint(active_repeat_time)
+active_time_ci_t
+
+present_time_ci_t <- confint(present_repeat_time)
+present_time_ci_t
+
+```
+
+# 回答時間　TSSQの図示
+
+```{r TSSQ}
+#予測値の取得
+data_total_repeat$pt3_Predicted_time <- predict(pt3_repeat_time, re.form = NA)
+data_TSSQ_concept_repeat$concep_Predicted_time <- predict(concep_repeat_time, re.form = NA)
+data_total_repeat$active_Predicted_time <- predict(active_repeat_time, re.form = NA)
+data_total_repeat$present_Predicted_time <- predict(present_repeat_time, re.form = NA)
+
+# ggplot2を使用してランダム効果をプロット
+ggplot(data_total_repeat, aes(x = period, y = 視点取り, group = total_time)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = pt3_Predicted_time, group = total_time, color = "視点取りの得点の予測値"),
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "視点取りの得点") +
+  theme_minimal()
+
+ggplot(data_TSSQ_concept_repeat, aes(x = period, y = 概念化, group = total_time)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = concep_Predicted_time, group = total_time, color = "概念化の得点の予測値"), lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "概念化の得点") +
+  theme_minimal()
+
+ggplot(data_total_repeat, aes(x = period, y = アクティブ, group = total_time)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = active_Predicted_time, group = total_time, color = "アクティブの得点の予測値"), 
+            lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "アクティブの得点") +
+  theme_minimal()
+
+ggplot(data_total_repeat, aes(x = period, y = 今.この瞬間, group = total_time)) +
+  geom_boxplot() +
+  geom_line(aes(x = period, y = present_Predicted_time, group = total_time, color = "今.この瞬間の得点の予測値"),  lty = 2) +
+  labs(title = "予測値と観測値の比較", x = "時期", y = "今.この瞬間の得点") +
+  theme_minimal()
+```
