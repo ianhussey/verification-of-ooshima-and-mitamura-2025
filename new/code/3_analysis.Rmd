@@ -39,41 +39,6 @@ data_processed <- read_csv("../data/processed/data_processed.csv")
 
 ```
 
-# Descriptives
-
-```{r}
-
-data_processed |>
-  summarize(mean_pre_mes_perspective = mean(mes_perspective_pre),
-            mean_post_mes_perspective = mean(mes_perspective_post),
-            sd_pre_mes_perspective = sd(mes_perspective_pre),
-            sd_post_mes_perspective = sd(mes_perspective_post),
-            min_pre_mes_perspective = min(mes_perspective_pre),
-            min_post_mes_perspective = min(mes_perspective_post),
-            max_pre_mes_perspective = max(mes_perspective_pre),
-            max_post_mes_perspective = max(mes_perspective_post)) |>
-  pivot_longer(cols = everything()) |>
-  kable() |>
-  kable_classic(full_width = FALSE)
-
-data_processed_exclusions <- data_processed |>
-  mutate(mes_perspective_pre_exclusions = case_when(mes_perspective_pre < 13 ~ NA, # using the observed min/max scores from the other datasets
-                                                    mes_perspective_pre > 22 ~ NA,
-                                                    TRUE ~ mes_perspective_pre),
-         mes_perspective_post_exclusions = case_when(mes_perspective_post < 13 ~ NA,
-                                                    mes_perspective_post > 23 ~ NA,
-                                                    TRUE ~ mes_perspective_post))
-
-data_processed_exclusions |>
-  drop_na(mes_perspective_pre_exclusions, mes_perspective_post_exclusions) |>
-  count() |>
-  kable() |>
-  kable_classic(full_width = FALSE)
-
-```
-
-- dropping scores beyond the min max of the other datasets processed by the authors produces more drops than they had. so, manual comparison of my processed data and theirs seems necessary to see what differs.
-
 # Pre-post comparisons
 
 ## Paired *t*-tests
@@ -185,13 +150,13 @@ res_combined |>
 
 ```
 
-## Precision-weighted Cohen's $d_{av}$ across PT outcomes
+# Precision-weighted Cohen's $d_{av}$ across PT outcomes
 
 This is basically a fixed-effects meta-analysis. Imperfect analysis given it ignores dependencies.
 
 NB hypothesis predicts positive Cohen's *d* values.
 
-### PT subscales
+## PT subscales
 
 ```{r}
 
@@ -212,7 +177,7 @@ res_es_weighted_pt |>
 
 ```
 
-### Non PT subscales
+## Non PT subscales
 
 ```{r}
 
