@@ -48,13 +48,13 @@ This statement about the results is incorrect. There were two cognitive empathy 
 
 Given that two measures of cognitive PT were used to test the same broad verbal hypothesis about the impact of RFT-informed PT training on cognitive empathy, multiple testing corrects are arguably warranted. Applying Holm corrections to the reported *p* values makes both non-significant: *p*s = `r p.adjust(c(.031, .779), method = "holm")`.
 
-An alternative way of analyzing the multiple outcomes would be to combine both outcomes by calculating the precision-weighted-average Cohen's $d_{av}$ and its intervals. In the analyses below, I show that doing so produces a non-significant effect (precision-weighted-average Cohen's $d_{av}$ = 0.04, 95% CI[-0.11, 0.19]).
+An alternative way of analyzing the multiple outcomes would be to combine both outcomes by calculating the precision-weighted-average Cohen's $d_{av}$ and its intervals. In the analyses below, I show that doing so produces a non-significant effect (precision-weighted-average Cohen's $d_{av}$ = 0.04, 95% CI [-0.11, 0.19]).
 
 3. Unclear statement about the alternative analyses, questionable appropriateness of some analyses, and omission of their non-significant results
 
 "...however, The increase in the score remained significant trend after adjusting for training performance."
 
-This statement is somewhat unclear in terms of what is meant by a "significant trend" and what was adjusted for. My hopefully reasonable assumption is that the authors refer to the alternative analysis of both accuracy and reaction times on the cognitive empathy PT subscales using multilevel models. However, the results of those analyses showed that neither MSE or IRI subscales demonstrated significant change from pre to post for accuracy (MSE PT: p = .144; IRI PT: p = .698) or reaction time (MSE PT: p = .062; IRI PT: p = .443). Perhaps the marginal result for reaction times on the MSE are what are being referred to. Given that all four *p* values again tested the same broad verbal claim about the impact of RFT-informed PT training on cognitive empathy, multiple testing corrections are again warranted. Applying Holm corrections to the reported *p* values makes all non-significant (or indeed marginally significant): *p*s = `r p.adjust(c(.144, .698, .062, .443), method = "holm")`.
+This statement is somewhat unclear in terms of what is meant by a "significant trend" and what was adjusted for. My hopefully reasonable assumption is that the authors refer to the alternative analysis of both accuracy and reaction times on the cognitive empathy PT subscales using multilevel models. However, the results of those analyses showed that neither MSE or IRI subscales demonstrated significant change from pre to post for accuracy (MSE PT: *p* = .144; IRI PT: *p* = .698) or reaction time (MSE PT: *p* = .062; IRI PT: *p* = .443). Perhaps the marginal result for reaction times on the MSE are what are being referred to. Given that all four *p* values again tested the same broad verbal claim about the impact of RFT-informed PT training on cognitive empathy, multiple testing corrections are again warranted. Applying Holm corrections to the reported *p* values makes all non-significant (or indeed marginally significant): *p*s = `r p.adjust(c(.144, .698, .062, .443), method = "holm")`.
 
 Additionally, it's important to note that neither self-report scale, to my knowledge, were presented as speeded response tasks, nor is reaction times on a self-report empathy scale employed as a measure of empathy elsewhere in the empathy literature to the best of my knowledge, raising questions about the appropriateness of the reaction time analysis. Given that the article's stated aim is to investigate the impact of RFT-informed PT training on classical measures of cognitive empathy, analysing the measure in a non-traditional way undermines the validity of the claim. 
 
@@ -78,7 +78,7 @@ The article states "For each subcategory of each index, we applied the interquar
 
 8. Absence of a control condition
 
-Using pre-post intervention changes as evidence of the causal impact of the intervention on the outcome variable is widely critiqued as suffering from being confounded by time-related factors and cannot rule out alternative explanations such as demand, history effects, or regression to the mean. This is why randomized controlled trials must include a control condition, in order to provide an estimate of the causal impact of the intervention via the counter factual of not receiving the intervention. In addition to concerns about the the results after multiple testing corrections, the absence of a control condition serves to further undermine the weight of evidence the design is capable of producing. 
+Using pre-post intervention changes as evidence of the causal impact of the intervention on the outcome variable is widely critiqued as suffering from being confounded by time-related factors and cannot rule out alternative explanations such as demand, history effects, or regression to the mean. This is why randomized controlled trials must include a control condition, in order to provide an estimate of the causal impact of the intervention via the counter factual of not receiving the intervention. In addition to concerns about the results after multiple testing corrections, the absence of a control condition serves to further undermine the weight of evidence the design is capable of producing. 
 
 9. Spin in the article vs. the poster
 
@@ -186,7 +186,7 @@ res_d <- bind_rows(
   tidy_d(data_processed, iri_ec_pre, iri_ec_post, "IRI EC"),
   tidy_d(data_processed, iri_fs_pre, iri_fs_post, "IRI FS"),
   tidy_d(data_processed, iri_pd_pre, iri_pd_post, "IRI PD"),
-
+  
   tidy_d(data_processed, mes_other_pre, mes_other_post, "MES other"),
   tidy_d(data_processed, mes_self_pre, mes_self_post, "MES self"),
   tidy_d(data_processed, mes_affected_pre, mes_affected_post, "MES affected"),
