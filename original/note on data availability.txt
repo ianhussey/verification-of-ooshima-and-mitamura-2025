@@ -1,0 +1,1 @@
+A copy of the article's OSF project is available in this repository, including the original zip file downloaded from OSF. At time of writing (15-05-2025), a day after I emailed the authors to raise some initial concerns about the reproducibility of the data processing, the OSF project is no longer public.
