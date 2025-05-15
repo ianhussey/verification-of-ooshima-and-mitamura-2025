@@ -326,25 +326,30 @@ p_tssq_new
 
 ## Combined scatter plots
 
-```{r fig.height=12, fig.width=8}
+```{r fig.height=8, fig.width=8}
 
 p_iri_orig +
   p_iri_new +
   p_mes_orig +
   p_mes_new +
-  p_tssq_orig +
-  p_tssq_new +
+  # p_tssq_orig + # these scores match, but in retrospect they also weren't part of the directional hypotheses. For the preprint, I don't include them in the figure.
+  # p_tssq_new +
   plot_layout(ncol = 2)
 
 dir.create("plots")
-ggsave("plots/plot_data_comparisons.png", width = 8, height = 12)
+ggsave("plots/plot_data_comparisons.png", width = 8, height = 8)
 
 ```
 
-- TSSQ seems to recalculate fine
-- IRI and MES produce very different sum scores to that used in the analytic dataset
+- IRI and MES produce very different sum scores to that used in the analytic data set
 
+# Session info
 
+```{r}
+
+sessionInfo()
+
+```
 
 
 
