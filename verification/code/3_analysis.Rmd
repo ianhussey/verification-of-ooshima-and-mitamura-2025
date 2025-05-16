@@ -24,6 +24,7 @@ knitr::opts_chunk$set(message = FALSE,
 library(tidyverse)
 library(readxl)
 library(ggstance)
+library(patchwork)
 library(broom)
 library(janitor)
 library(effectsize)
@@ -32,64 +33,15 @@ library(kableExtra)
 
 ```
 
-# Critique
-
-0. Summary of critique
-
-Several elements of the results are not computationally reproducible (sum scoring, outlier exclusion); no multiple testing corrections were applied, and when applied post hoc all results become non-significant; the study lacked a control condition undermining ability to draw causal conclusion. While the abstract and discussion do not explicitly over claim, in my opinion the article fails to sufficiently calibrate for the reader the degree to which the reported results support of the hypothesis. This spin strongly risks that the article will be cited uncritically as support for the claim that RFT-inspired PT training using the McHugh protocol increases cognitive empathy, when the results provide weak or no support for this claim. The purpose of this critique is to preregister my prediction about future citations of this article at provide a critique perspective on why this would be an unjustified conclusion.
-
-1. Omission of the non-significant result on the second outcome variable from the abstract
-
-The article abstract states: "This study investigated the impact of perspective-taking training rooted in the relational frame theory on perspective-taking, as conceptualized by the organizational model of empathy. ... The post-training scores for the subscales measuring cognitive empathy increased significantly (*p* = 0.031)" (Ooshima and Mitamura, 2025, p. 1).
-
-This statement about the results is incorrect. There were two cognitive empathy PT subscales, only one of which showed a significant effect: MSE PT (*p* = .031) and IRI PT (*p* = .779). The omission of the non-significant result on the much more widely used IRI scale from the abstract should be noted.
-
-2. Absence of multiple testing corrections
-
-Given that two measures of cognitive PT were used to test the same broad verbal hypothesis about the impact of RFT-informed PT training on cognitive empathy, multiple testing corrects are arguably warranted. Applying Holm corrections to the reported *p* values makes both non-significant: *p*s = `r p.adjust(c(.031, .779), method = "holm")`.
-
-An alternative way of analyzing the multiple outcomes would be to combine both outcomes by calculating the precision-weighted-average Cohen's $d_{av}$ and its intervals. In the analyses below, I show that doing so produces a non-significant effect (precision-weighted-average Cohen's $d_{av}$ = 0.04, 95% CI [-0.11, 0.19]).
-
-3. Unclear statement about the alternative analyses, questionable appropriateness of some analyses, and omission of their non-significant results
-
-"...however, The increase in the score remained significant trend after adjusting for training performance."
-
-This statement is somewhat unclear in terms of what is meant by a "significant trend" and what was adjusted for. My hopefully reasonable assumption is that the authors refer to the alternative analysis of both accuracy and reaction times on the cognitive empathy PT subscales using multilevel models. However, the results of those analyses showed that neither MSE or IRI subscales demonstrated significant change from pre to post for accuracy (MSE PT: *p* = .144; IRI PT: *p* = .698) or reaction time (MSE PT: *p* = .062; IRI PT: *p* = .443). Perhaps the marginal result for reaction times on the MSE are what are being referred to. Given that all four *p* values again tested the same broad verbal claim about the impact of RFT-informed PT training on cognitive empathy, multiple testing corrections are again warranted. Applying Holm corrections to the reported *p* values makes all non-significant (or indeed marginally significant): *p*s = `r p.adjust(c(.144, .698, .062, .443), method = "holm")`.
-
-Additionally, it's important to note that neither self-report scale, to my knowledge, were presented as speeded response tasks, nor is reaction times on a self-report empathy scale employed as a measure of empathy elsewhere in the empathy literature to the best of my knowledge, raising questions about the appropriateness of the reaction time analysis. Given that the article's stated aim is to investigate the impact of RFT-informed PT training on classical measures of cognitive empathy, analysing the measure in a non-traditional way undermines the validity of the claim. 
-
-4. Summary of the hypothesis tests after adjusting for multiple comparisons
-
-After adjusting for multiple comparisons, no statistically significant results were found on either cognitive empathy subscale in either method of analysis (all *p*s > `r min(p.adjust(c(.031, .779), method = "holm"), p.adjust(c(.144, .698, .062, .443), method = "holm"))`).
-
-5. Downplaying of evidence contrary to the hypothesis
-
-The article's hypothesis is that RFT-informed PT training should increase cognitive empathy. This argument has implied specificity, i.e., that the PT training should not increase affective empathy; or perhaps that it should increase both, but not only cognitive empathy. The article does not acknowledge that results run contrary to this implied specificity: more significant results with larger effect sizes were observed for the MES Other-orientation (*p* < .001, Cohen's *d* = 0.94) and Affectedness subscales (*p* = .001, Cohen's *d* = 0.58; see Table 2 in the article).
-
-6. Sum scores are not computationally reproducible
-
-In the "2_comparison_of_datasets.html" file, I demonstrate that the IRI PT and MES PT subscale sum score data reported to have been used in the analysis are not computationally reproducible from the item level data. 
-
-Separately, data for the MES PT subscale scores were provided in two different data files each on the OSF. However, my analysis in "2_comparison_of_datasets.html" shows that the pre and post conditions are swapped between the two files. It is unclear which represents the real data set (putting aside issues of reproducibility). If the wrong one was used in the analysis, this would switch the direction of the effect from increases in cognitive empathy to decreases in it (putting aside issues of multiple testing corrections). 
-
-7. Outlier exclusion strategy is not reproducible
-
-The article states "For each subcategory of each index, we applied the interquartile range (IQR) method to identify outliers, which are data points that fall outside the IQR. We conducted the data analysis by excluding outliers upon observation. Outliers were excluded if they were observed. An overview of outlier counts revealed four (n = 37) for MES Perspective-taking, one (n = 40) each for Self-orientation and Other-orientation, and one (n = 40) for the conceptualization of the TSSQ" (Ooshima and Mitamura, 2025, p. 7). This is internally inconsistent: the interquartile range by definition includes 50% of participants, but only 1-4 participants were excluded from some subscales. No R code implementing the outlier exclusions is included in the authors' code on the OSF project. The exclusions therefore cannot be reproduced from the description in the article.  
-
-8. Absence of a control condition
-
-Using pre-post intervention changes as evidence of the causal impact of the intervention on the outcome variable is widely critiqued as suffering from being confounded by time-related factors and cannot rule out alternative explanations such as demand, history effects, or regression to the mean. This is why randomized controlled trials must include a control condition, in order to provide an estimate of the causal impact of the intervention via the counter factual of not receiving the intervention. In addition to concerns about the results after multiple testing corrections, the absence of a control condition serves to further undermine the weight of evidence the design is capable of producing. 
-
-9. Spin in the article vs. the poster
-
-The authors' OSF project includes a poster presenting the results of the study at a conference. It is worth highlighting the difference in the presentation of the results in the article's abstract (which presents only the significant results) vs. their summary of results in the poster, where they state "There was no significant PT for IRI-J, but significant change in Perspective-taking in MES. Cannot conclude that there were impacts before or after training consistently." This is not technically at odds with the abstract's results, but arguably an important different in 'spin' of the results.
-
 # Get data
 
 ```{r}
 
 # data reprocessed from item level data 
-data_processed <- read_csv("../data/processed/data_processed.csv")
+data_processed <- read_csv("../data/processed/data_processed.csv") |>
+  # select the data after outlier exclusions and then rename the columns for simplicity 
+  select(id, ends_with("_outliers_excluded")) |>
+  rename_with(~ str_remove(., "_outliers_excluded$"))
 
 # data extracted from table 2 in the article
 data_table_2 <- read_xlsx("../data/original/table_2.xlsx") |>
@@ -119,217 +71,184 @@ ggplot(data_table_2, aes(mean_diff, scale_subscale)) +
 
 # Pre-post comparisons
 
-## Paired *t*-tests
-
-All Students t-tests. The original study reported running Welches' t-tests for "Other-orientation, Affectedness, and Imagination subscales of the MES". 
-
-"One-tailed tests were conducted for PT of IRI and Perspective-taking of MES based on the research hypothesis that scores on perspective taking would increase from pre- to post-training." Why not for TSSQ perspective taking scale?
+## F test for equal variances
 
 ```{r}
 
-tidy_t <- function(data, pre, post, name, alternative = "two.sided"){
+tidy_var_test <- function(data, pre, post, name) {
+  var.test(pull(data, !!enquo(pre)),
+           pull(data, !!enquo(post))) |>
+    broom::tidy() |>
+    mutate(outcome = name) |>
+    select(outcome,
+           f = statistic,
+           df1 = num.df,
+           df2 = den.df,
+           p = p.value)
+}
+
+res_var <- bind_rows(
+  tidy_var_test(data_processed, iri_pt_pre, iri_pt_post, "IRI PT"),
+  tidy_var_test(data_processed, mes_perspective_pre, mes_perspective_post, "MES PT"),
+  tidy_var_test(data_processed, tssq_perspective_pre, tssq_perspective_post, "TSSQ PT"),
+  
+  tidy_var_test(data_processed, iri_ec_pre, iri_ec_post, "IRI EC"),
+  tidy_var_test(data_processed, iri_fs_pre, iri_fs_post, "IRI FS"),
+  tidy_var_test(data_processed, iri_pd_pre, iri_pd_post, "IRI PD"),
+  
+  tidy_var_test(data_processed, mes_other_pre, mes_other_post, "MES other"),
+  tidy_var_test(data_processed, mes_self_pre, mes_self_post, "MES self"),
+  tidy_var_test(data_processed, mes_affected_pre, mes_affected_post, "MES affected"),
+  tidy_var_test(data_processed, mes_imagination_pre, mes_imagination_post, "MES imagination"),
+  
+  tidy_var_test(data_processed, tssq_active_pre, tssq_active_post, "TSSQ active"),
+  tidy_var_test(data_processed, tssq_conceptualization_pre, tssq_conceptualization_post, "TSSQ conceptualization"),
+  tidy_var_test(data_processed, tssq_present_pre, tssq_present_post, "TSSQ present")
+) |>
+  mutate(var_equal = ifelse(p < .05, FALSE, TRUE))
+
+res_var |>
+  mutate(f = round_half_up(f, 2),
+         p = round_half_up(p, 4)) |>
+  kable() |>
+  kable_classic(full_width = FALSE)
+
+```
+
+The original study reported running Welches' t-tests for "Other-orientation, Affectedness, and Imagination subscales of the MES". I reproduce the same conclusions, following the original study's stated analysis. I didn't compare the exact numerical results.
+
+## Paired *t*-tests
+
+### Screenshot of original article's results:
+
+```{r out.width="90%"}
+
+knitr::include_graphics("../data/original/table_2.png")
+
+```
+
+The original article found significant *increases* in the following variables:
+
+- MES PT
+- MES other
+- MES affectedness
+
+### Verification:
+
+Cohen's $d_{z}$ is approximated from the *t*-statistic and df, as in the original publication.
+
+"One-tailed tests were conducted for PT of IRI and Perspective-taking of MES based on the research hypothesis that scores on perspective taking would increase from pre- to post-training." 
+
+```{r}
+
+tidy_t <- function(data, pre, post, var_equal, name, alternative = "two.sided"){
   t.test(pull(data, !!enquo(pre)),
          pull(data, !!enquo(post)),
          alternative = alternative,
-         var.equal = TRUE) |>
+         paired = TRUE,
+         var_equal = var_equal) |>
     broom::tidy() |>
     mutate(outcome = name,
-           hypothesis = alternative) |>
-    select(outcome, hypothesis,
-           mean_diff = estimate, t = statistic, df = parameter, p = p.value)
+           hypothesis = alternative,
+           var_equal = var_equal) |>
+    select(outcome, hypothesis, var_equal, mean_diff_ci_lower = conf.low, mean_diff_ci_upper = conf.high,
+           mean_diff = estimate, t = statistic, df = parameter, p = p.value) |>
+    # cohen's d_z estimated from the the t and df.
+    mutate(d_z = t / sqrt(df + 1))
 }
 
 res_t <- bind_rows(
-  tidy_t(data_processed, iri_pt_pre, iri_pt_post, "IRI PT", alternative = "greater"),
-  tidy_t(data_processed, mes_perspective_pre, mes_perspective_post, "MES PT", alternative = "greater"),
-  tidy_t(data_processed, tssq_perspective_pre, tssq_perspective_post, "TSSQ PT"), # , alternative = "greater" - not used in original paper, unclear to me why
+  tidy_t(data_processed, iri_pt_pre, iri_pt_post, var_equal = TRUE, "IRI PT", alternative = "greater"),
+  tidy_t(data_processed, mes_perspective_pre, mes_perspective_post, var_equal = TRUE, "MES PT", alternative = "greater"),
+  tidy_t(data_processed, tssq_perspective_pre, tssq_perspective_post, var_equal = TRUE, "TSSQ PT"), # , alternative = "greater" - not used in original paper, unclear to me why
   
-  tidy_t(data_processed, iri_ec_pre, iri_ec_post, "IRI EC"),
-  tidy_t(data_processed, iri_fs_pre, iri_fs_post, "IRI FS"),
-  tidy_t(data_processed, iri_pd_pre, iri_pd_post, "IRI PD"),
+  tidy_t(data_processed, iri_ec_pre, iri_ec_post, var_equal = TRUE, "IRI EC"),
+  tidy_t(data_processed, iri_fs_pre, iri_fs_post, var_equal = TRUE, "IRI FS"),
+  tidy_t(data_processed, iri_pd_pre, iri_pd_post, var_equal = TRUE, "IRI PD"),
   
-  tidy_t(data_processed, mes_other_pre, mes_other_post, "MES other"),
-  tidy_t(data_processed, mes_self_pre, mes_self_post, "MES self"),
-  tidy_t(data_processed, mes_affected_pre, mes_affected_post, "MES affected"),
-  tidy_t(data_processed, mes_imagination_pre, mes_imagination_post, "MES imagination"),
+  tidy_t(data_processed, mes_other_pre, mes_other_post, var_equal = FALSE, "MES other"),
+  tidy_t(data_processed, mes_self_pre, mes_self_post, var_equal = TRUE, "MES self"),
+  tidy_t(data_processed, mes_affected_pre, mes_affected_post, var_equal = FALSE, "MES affected"),
+  tidy_t(data_processed, mes_imagination_pre, mes_imagination_post, var_equal = FALSE, "MES imagination"),
   
-  tidy_t(data_processed, tssq_active_pre, tssq_active_post, "TSSQ active"),
-  tidy_t(data_processed, tssq_conceptualization_pre, tssq_conceptualization_post, "TSSQ conceptualization"),
-  tidy_t(data_processed, tssq_present_pre, tssq_present_post, "TSSQ present")
+  tidy_t(data_processed, tssq_active_pre, tssq_active_post, var_equal = TRUE, "TSSQ active"),
+  tidy_t(data_processed, tssq_conceptualization_pre, tssq_conceptualization_post, var_equal = TRUE, "TSSQ conceptualization"),
+  tidy_t(data_processed, tssq_present_pre, tssq_present_post, var_equal = TRUE, "TSSQ present")
 )
 
-```
+res_t |>
+  mutate(mean_diff = round_half_up(mean_diff, 2),
+         mean_diff_ci_lower = round_half_up(mean_diff_ci_lower, 2),
+         mean_diff_ci_upper = round_half_up(mean_diff_ci_upper, 2),
+         t = round_half_up(t, 2),
+         p = round_half_up(p, 4),
+         d_z = round_half_up(d_z, 2)) |>
+  kable() |>
+  kable_classic(full_width = FALSE)
 
-## Cohen's $d_{av}$
-
-Note that I calculate Cohen's $d_{av}$ rather than approximating Cohen's $d_{s}$ from the *t*-statistic, as done in the original publication, as the former takes within subject variation into account to provide more precise estimates.
-
-Because the original study estimates *d* from the *t* value, it can only find positive (absolute) values of Cohen's *d*. This can easily obscure the fact that some scales show (numerical) decreases in scores rather than increases.  
-
-```{r}
-
-tidy_d <- function(data, pre, post, name){
-  repeated_measures_d(pull(data, !!enquo(pre)),
-                      pull(data, !!enquo(post)),
-                      paired = TRUE, 
-                      method = "av") |>
-    as_tibble() |>
-    mutate(outcome = name) |>
-    select(outcome, d = d_av, d_ci_lower = CI_low, d_ci_upper = CI_high)
-}
-
-res_d <- bind_rows(
-  tidy_d(data_processed, iri_pt_pre, iri_pt_post, "IRI PT"),
-  tidy_d(data_processed, mes_perspective_pre, mes_perspective_post, "MES PT"),
-  tidy_d(data_processed, tssq_perspective_pre, tssq_perspective_post, "TSSQ PT"),
-  
-  tidy_d(data_processed, iri_ec_pre, iri_ec_post, "IRI EC"),
-  tidy_d(data_processed, iri_fs_pre, iri_fs_post, "IRI FS"),
-  tidy_d(data_processed, iri_pd_pre, iri_pd_post, "IRI PD"),
-  
-  tidy_d(data_processed, mes_other_pre, mes_other_post, "MES other"),
-  tidy_d(data_processed, mes_self_pre, mes_self_post, "MES self"),
-  tidy_d(data_processed, mes_affected_pre, mes_affected_post, "MES affected"),
-  tidy_d(data_processed, mes_imagination_pre, mes_imagination_post, "MES imagination"),
-  
-  tidy_d(data_processed, tssq_active_pre, tssq_active_post, "TSSQ active"),
-  tidy_d(data_processed, tssq_conceptualization_pre, tssq_conceptualization_post, "TSSQ conceptualization"),
-  tidy_d(data_processed, tssq_present_pre, tssq_present_post, "TSSQ present")
-) |>
-  mutate(d_ci_width = d_ci_upper - d_ci_lower)
-
-```
-
-## Combined
-
-```{r}
-
-res_combined <- full_join(res_t, res_d, by = "outcome") |>
-  mutate(Type = ifelse(outcome %in% c("IRI PT", "MES PT"), "Hypothesis measures", "Non hypothesis measures")) # , "TSSQ PT"
-
-ggplot(res_combined, aes(d, outcome, color = Type)) +
+ggplot(res_t, aes(mean_diff, outcome)) +
   geom_vline(xintercept = 0, linetype = "dotted") +
-  ggstance::geom_linerangeh(aes(xmin = d_ci_lower, xmax = d_ci_upper)) +
+  ggstance::geom_linerangeh(aes(xmin = mean_diff_ci_lower, xmax = mean_diff_ci_upper)) +
   geom_point() +
   theme_linedraw() +
   scale_color_viridis_d(begin = 0.3, end = 0.7) +
-  xlab("Cohen's d_av") +
+  xlab("Mean change from pre to post") +
   ylab("")
 
-res_combined |>
-  #arrange(outcome) |>
+```
+
+Note that upper 95% CIs for MES PT and IRI PT are Inf because these use one-sided tests, as in the original article.
+
+The verification analysis found significant *decreases* in the following variables:
+
+- MES other
+- MES affectedness
+
+Note that if the one-sided test had been in the other direction, significant decreases would have been found for the MES PT:
+
+```{r}
+
+tidy_t(data_processed, mes_perspective_pre, mes_perspective_post, var_equal = TRUE, "MES PT", alternative = "less") |>
   mutate(mean_diff = round_half_up(mean_diff, 2),
          t = round_half_up(t, 2),
          p = round_half_up(p, 4),
-         d = round_half_up(d, 2),
-         d_ci_lower = round_half_up(d_ci_lower, 2),
-         d_ci_upper = round_half_up(d_ci_upper, 2),
-         d_ci_width = round_half_up(d_ci_width, 2)) |>
+         d_z = round_half_up(d_z, 2)) |>
   kable() |>
   kable_classic(full_width = FALSE)
 
 ```
 
-### Alpha corrections
+### N exclusions 
 
-Given that two measures were used to test the same hypothesis, alpha corrections are arguably warranted. I employ a Holm correction here.
+Original article stated "df for all subscales of IRI, Imagination, Affectedness, and subscales of TSSQ except for conceptualization are 42. df for Self-orientation, Other-orientation, and conceptualization are 41. df for Perspective-taking in MES is 38.". 
 
-```{r}
+These were not reproduced for any variable, suggesting that the description of the exclusion strategy supplied by Ooshima was inaccurately applied by me, or inaccurately described, or inaccurately applied in the original article. 
 
-res_t |>
-  filter(outcome %in% c("IRI PT", "MES PT")) |> # , "TSSQ PT"
-  mutate(p.adj = p.adjust(p, method = "holm")) |>
-  mutate(mean_diff = round_half_up(mean_diff, 2),
-         t = round_half_up(t, 2),
-         p = round_half_up(p, 4),
-         p.adj = round_half_up(p.adj, 4)) |>
-  kable() |>
-  kable_classic(full_width = FALSE)
-
-```
-
-# Precision-weighted Cohen's $d_{av}$ across hypothesis PT outcomes
-
-Instead of using alpha corrections and conjunctive vs dysjunctive inference, another option is to calculate the average effect size and its CIs across the hypothesis's outcome measures.
-
-This is basically a fixed-effects meta-analysis. Imperfect analysis given it ignores dependencies.
-
-NB hypothesis predicts positive Cohen's *d* values.
-
-## PT subscales
-
-No observed increases in PT empathy across the PT hypothesis subscales.
-
-Note this analysis implicitly uses two-sided tests, although changing CI width to .90 in the cohen's d function to mimic a one sided tests does not produce an interval that excludes zero. 
+## Comparing means from Table 2 with reverse scored mean difference scores
 
 ```{r}
 
-res_es_weighted_pt <- res_d %>%
-  filter(outcome %in% c("IRI PT", "MES PT")) |> # , "TSSQ PT"
-  mutate(se = (d_ci_upper - d_ci_lower) / (2 * 1.96),
-         weight = 1 / (se^2)) |>
-  summarize(weighted_d = sum(d * weight) / sum(weight),
-            se_weighted_d = sqrt(1 / sum(weight))) |>
-  mutate(ci_lower = weighted_d - 1.96 * se_weighted_d,
-         ci_upper = weighted_d + 1.96 * se_weighted_d) |>
-  select(weighted_d, ci_lower, ci_upper)
+p1 <- ggplot(data_table_2, aes(mean_diff, scale_subscale)) +
+  geom_linerangeh(aes(xmin = lower, xmax = upper)) +
+  geom_point() +
+  theme_linedraw()
 
-res_es_weighted_pt |>
-  mutate_if(is.numeric, round_half_up, digits = 2) |>
-  kable() |>
-  kable_classic(full_width = FALSE)
+p2 <- ggplot(res_t, aes(x = -mean_diff, y = outcome)) +
+  geom_vline(xintercept = 0, linetype = "dotted") +
+  ggstance::geom_linerangeh(
+    aes(xmin = -mean_diff_ci_upper, xmax = -mean_diff_ci_lower)
+  ) +
+  geom_point() +
+  theme_linedraw() +
+  scale_color_viridis_d(begin = 0.3, end = 0.7) +
+  xlab("Mean change from pre to post (reverse-scored)") +
+  ylab("")
 
-```
-
-## Non PT subscales
-
-Increases in non-PT empathy across the non-PT subscales.
-
-```{r}
-
-res_es_weighted_nonpt <- res_d %>%
-  filter(!outcome %in% c("IRI PT", "MES PT")) |> # , "TSSQ PT"
-  mutate(se = (d_ci_upper - d_ci_lower) / (2 * 1.96),
-         weight = 1 / (se^2)) |>
-  summarize(weighted_d = sum(d * weight) / sum(weight),
-            se_weighted_d = sqrt(1 / sum(weight))) |>
-  mutate(ci_lower = weighted_d - 1.96 * se_weighted_d,
-         ci_upper = weighted_d + 1.96 * se_weighted_d) |>
-  select(weighted_d, ci_lower, ci_upper)
-
-res_es_weighted_nonpt |>
-  mutate_if(is.numeric, round_half_up, digits = 3) |>
-  kable() |>
-  kable_classic(full_width = FALSE)
+p1 + p2 + plot_layout(ncol = 1)
 
 ```
 
-- Significant positive effect - counter the prediction of the theory. 
-
-# PT subscale correlations
-
-IRI PT vs MES PT at pre
-
-```{r}
-
-data_processed |>
-  select(iri_pt_pre, mes_perspective_pre, tssq_perspective_pre) |>
-  cor() |>
-  round_half_up(2)
-
-```
-
-IRI PT vs MES PT at post
-
-```{r}
-
-data_processed |>
-  select(iri_pt_post, mes_perspective_post, tssq_perspective_post) |>
-  cor() |>
-  round_half_up(2)
-
-```
-
+Reverse scoring the estimates obtained in the verification broadly reproduces the pattern of results reported in Table 2 of the article. This suggests that perhaps the pre and post data columns were swapped somewhere. The "2_comparison_of_datasets.Rmd" file already showed that the two sets of datasets distributed on the OSF project reversed the pre and post columns for some variables. It is unclear whether the "all_law_data_pre.xlsx" and "all_law_data_post.xlsx" datasets have swapped these columns and the original article employed the correct original data, or whether the original article employed incorrectly reversed data.
 
 # Session info
 

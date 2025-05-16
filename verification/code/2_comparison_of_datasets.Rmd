@@ -12,10 +12,6 @@ output:
     toc_float: yes
 ---
 
-# TODO
-
-- import_total.xlsx group variable: What is group? its in this data file and in the original r script but never used in the analyses.
-
 ```{r, include=FALSE}
 knitr::opts_chunk$set(message = FALSE,
                       warning = FALSE)
@@ -31,6 +27,8 @@ library(broom)
 library(janitor)
 library(effectsize)
 library(patchwork)
+library(knitr)
+library(kableExtra)
 
 ```
 
@@ -67,6 +65,9 @@ data_tssq_pt_2 <- read_xlsx("../data/original/import_total.xlsx") |>
 
 # reprocessed
 data_reprocessed <- read_csv("../data/processed/data_processed.csv") |>
+  # select the data after outlier exclusions and then rename the columns for simplicity 
+  select(id, ends_with("_outliers_excluded")) |>
+  rename_with(~ str_remove(., "_outliers_excluded$")) |>
   select(id, 
          mes_perspective_pre, mes_perspective_post,
          iri_pt_pre, iri_pt_post,
@@ -89,7 +90,9 @@ data_iri_pt <- full_join(data_iri_pt_1,
          match_if_swapped = ifelse(pre.x == post.y & post.x == pre.y, TRUE, FALSE)) 
 
 data_iri_pt |>
-  summarize(proportion_match = mean(match))
+  summarize(proportion_match = mean(match)) |>
+  kable() |>
+  kable_classic(full_width = FALSE)
 
 ```
 
@@ -107,7 +110,9 @@ data_mes_pt <- full_join(data_mes_pt_1,
 
 data_mes_pt |>
   summarize(proportion_match = mean(match),
-            proportion_match_if_swapped = mean(match_if_swapped))
+            proportion_match_if_swapped = mean(match_if_swapped)) |>
+  kable() |>
+  kable_classic(full_width = FALSE)
 
 ```
 
@@ -124,7 +129,9 @@ data_tssq_pt <- full_join(data_tssq_pt_1,
          match_if_swapped = ifelse(pre.x == post.y & post.x == pre.y, TRUE, FALSE)) 
 
 data_tssq_pt |>
-  summarize(proportion_match = mean(match))
+  summarize(proportion_match = mean(match)) |>
+  kable() |>
+  kable_classic(full_width = FALSE)
 
 ```
 

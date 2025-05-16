@@ -1666,7 +1666,7 @@ border-radius: 0px;
 theory for cognitive empathy and emotional empathy’</h1>
 <h3 class="subtitle">Data processing</h3>
 <h4 class="author">Ian Hussey</h4>
-<h4 class="date">14 May, 2025</h4>
+<h4 class="date">16 May, 2025</h4>
 
 </div>
 
@@ -1675,127 +1675,169 @@ theory for cognitive empathy and emotional empathy’</h1>
 <h1>Dependencies</h1>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(broom)</span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(janitor)</span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">library</span>(effectsize)</span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(janitor)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span></code></pre></div>
 </div>
 <div id="data-processing" class="section level1">
 <h1>Data processing</h1>
 <p>NB data loaded is not raw - participants with partial data have
 already been removed. Raw doesn’t seem to be available on the OSF.</p>
+<p>Corrispondance with Ooshima revealed that the all_law_data_pre.xlsx
+and all_law_data_post.xlsx files already have item reverse scoring
+applied to them, so they are not applied again below.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>data_pre_iri <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="st">&quot;../data/raw/all_law_data_pre.xlsx&quot;</span>, <span class="at">sheet =</span> <span class="st">&quot;IRI law&quot;</span>) <span class="sc">|&gt;</span></span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">id =</span> No) <span class="sc">|&gt;</span></span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="at">.fn =</span> <span class="sc">~</span> <span class="fu">paste0</span>(<span class="st">&quot;iri_&quot;</span>, .), <span class="at">.cols =</span> <span class="fu">starts_with</span>(<span class="st">&quot;Q&quot;</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(</span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="fu">c</span>(iri_Q3, iri_Q4, iri_Q7, iri_Q12, iri_Q13, iri_Q14, iri_Q15, iri_Q18, iri_Q19),</span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="sc">~</span> <span class="dv">6</span> <span class="sc">-</span> .x,</span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="at">.names =</span> <span class="st">&quot;{.col}_rev&quot;</span></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>)) <span class="sc">|&gt;</span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>    <span class="at">iri_pt_pre =</span> iri_Q3_rev <span class="sc">+</span> iri_Q8 <span class="sc">+</span> iri_Q11 <span class="sc">+</span> iri_Q15_rev <span class="sc">+</span> iri_Q21 <span class="sc">+</span> iri_Q25 <span class="sc">+</span> iri_Q28,</span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>    <span class="at">iri_ec_pre =</span> iri_Q2 <span class="sc">+</span> iri_Q4_rev <span class="sc">+</span> iri_Q9 <span class="sc">+</span> iri_Q14_rev <span class="sc">+</span> iri_Q18_rev <span class="sc">+</span> iri_Q20 <span class="sc">+</span> iri_Q22,</span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>    <span class="at">iri_fs_pre =</span> iri_Q1 <span class="sc">+</span> iri_Q5 <span class="sc">+</span> iri_Q7_rev <span class="sc">+</span> iri_Q12_rev <span class="sc">+</span> iri_Q16 <span class="sc">+</span> iri_Q23 <span class="sc">+</span> iri_Q26,</span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>    <span class="at">iri_pd_pre =</span> iri_Q6 <span class="sc">+</span> iri_Q10 <span class="sc">+</span> iri_Q13_rev <span class="sc">+</span> iri_Q17 <span class="sc">+</span> iri_Q19_rev <span class="sc">+</span> iri_Q24 <span class="sc">+</span> iri_Q27</span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  <span class="fu">select</span>(id, iri_pt_pre, iri_ec_pre, iri_fs_pre, iri_pd_pre)</span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a></span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>data_post_iri <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="st">&quot;../data/raw/all_law_data_post.xlsx&quot;</span>, <span class="at">sheet =</span> <span class="st">&quot;IRI law&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">id =</span> No) <span class="sc">|&gt;</span></span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="at">.fn =</span> <span class="sc">~</span> <span class="fu">paste0</span>(<span class="st">&quot;iri_&quot;</span>, .), <span class="at">.cols =</span> <span class="fu">starts_with</span>(<span class="st">&quot;Q&quot;</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(</span>
-<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>  <span class="fu">c</span>(iri_Q3, iri_Q4, iri_Q7, iri_Q12, iri_Q13, iri_Q14, iri_Q15, iri_Q18, iri_Q19),</span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>  <span class="sc">~</span> <span class="dv">6</span> <span class="sc">-</span> .x,</span>
-<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>  <span class="at">.names =</span> <span class="st">&quot;{.col}_rev&quot;</span></span>
-<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>)) <span class="sc">|&gt;</span></span>
-<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a>    <span class="at">iri_pt_post =</span> iri_Q3_rev <span class="sc">+</span> iri_Q8 <span class="sc">+</span> iri_Q11 <span class="sc">+</span> iri_Q15_rev <span class="sc">+</span> iri_Q21 <span class="sc">+</span> iri_Q25 <span class="sc">+</span> iri_Q28,</span>
-<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>    <span class="at">iri_ec_post =</span> iri_Q2 <span class="sc">+</span> iri_Q4_rev <span class="sc">+</span> iri_Q9 <span class="sc">+</span> iri_Q14_rev <span class="sc">+</span> iri_Q18_rev <span class="sc">+</span> iri_Q20 <span class="sc">+</span> iri_Q22,</span>
-<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a>    <span class="at">iri_fs_post =</span> iri_Q1 <span class="sc">+</span> iri_Q5 <span class="sc">+</span> iri_Q7_rev <span class="sc">+</span> iri_Q12_rev <span class="sc">+</span> iri_Q16 <span class="sc">+</span> iri_Q23 <span class="sc">+</span> iri_Q26,</span>
-<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a>    <span class="at">iri_pd_post =</span> iri_Q6 <span class="sc">+</span> iri_Q10 <span class="sc">+</span> iri_Q13_rev <span class="sc">+</span> iri_Q17 <span class="sc">+</span> iri_Q19_rev <span class="sc">+</span> iri_Q24 <span class="sc">+</span> iri_Q27</span>
-<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a>  <span class="fu">select</span>(id, iri_pt_post, iri_ec_post, iri_fs_post, iri_pd_post)</span>
-<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a></span>
-<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co"># Add MES subscales (Self, Other, Affectedness, Perspective-taking, Imagination)</span></span>
-<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a>data_pre_mes <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="st">&quot;../data/raw/all_law_data_pre.xlsx&quot;</span>, <span class="at">sheet =</span> <span class="st">&quot;MES law&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">id =</span> No) <span class="sc">|&gt;</span></span>
-<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="at">.fn =</span> <span class="sc">~</span> <span class="fu">paste0</span>(<span class="st">&quot;mes_&quot;</span>, .), <span class="at">.cols =</span> <span class="fu">starts_with</span>(<span class="st">&quot;Q&quot;</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a>  <span class="co"># reverse score</span></span>
-<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(mes_Q3, mes_Q10, mes_Q14, mes_Q15, mes_Q16, mes_Q22), <span class="sc">~</span><span class="dv">6</span> <span class="sc">-</span> .x, <span class="at">.names =</span> <span class="st">&quot;{.col}_rev&quot;</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a>  <span class="co"># sum scores</span></span>
-<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a>    <span class="at">mes_other_pre =</span> mes_Q3_rev <span class="sc">+</span> mes_Q7 <span class="sc">+</span> mes_Q12 <span class="sc">+</span> mes_Q14_rev <span class="sc">+</span> mes_Q20,</span>
-<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a>    <span class="at">mes_self_pre =</span> mes_Q6 <span class="sc">+</span> mes_Q13 <span class="sc">+</span> mes_Q19 <span class="sc">+</span> mes_Q21,</span>
-<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a>    <span class="at">mes_affected_pre =</span> mes_Q1 <span class="sc">+</span> mes_Q2 <span class="sc">+</span> mes_Q8 <span class="sc">+</span> mes_Q16_rev <span class="sc">+</span> mes_Q22_rev,</span>
-<span id="cb2-44"><a href="#cb2-44" tabindex="-1"></a>    <span class="at">mes_perspective_pre =</span> mes_Q4 <span class="sc">+</span> mes_Q9 <span class="sc">+</span> mes_Q10_rev <span class="sc">+</span> mes_Q17 <span class="sc">+</span> mes_Q23,</span>
-<span id="cb2-45"><a href="#cb2-45" tabindex="-1"></a>    <span class="at">mes_imagination_pre =</span> mes_Q5 <span class="sc">+</span> mes_Q11 <span class="sc">+</span> mes_Q15_rev <span class="sc">+</span> mes_Q18 <span class="sc">+</span> mes_Q24</span>
-<span id="cb2-46"><a href="#cb2-46" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb2-47"><a href="#cb2-47" tabindex="-1"></a>  <span class="fu">select</span>(id, mes_other_pre, mes_self_pre, mes_affected_pre, mes_perspective_pre, mes_imagination_pre)</span>
-<span id="cb2-48"><a href="#cb2-48" tabindex="-1"></a></span>
-<span id="cb2-49"><a href="#cb2-49" tabindex="-1"></a>data_post_mes <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="st">&quot;../data/raw/all_law_data_post.xlsx&quot;</span>, <span class="at">sheet =</span> <span class="st">&quot;MES law&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-50"><a href="#cb2-50" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">id =</span> No) <span class="sc">|&gt;</span></span>
-<span id="cb2-51"><a href="#cb2-51" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="at">.fn =</span> <span class="sc">~</span> <span class="fu">paste0</span>(<span class="st">&quot;mes_&quot;</span>, .), <span class="at">.cols =</span> <span class="fu">starts_with</span>(<span class="st">&quot;Q&quot;</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb2-52"><a href="#cb2-52" tabindex="-1"></a>  <span class="co"># reverse score</span></span>
-<span id="cb2-53"><a href="#cb2-53" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(mes_Q3, mes_Q10, mes_Q14, mes_Q15, mes_Q16, mes_Q22), <span class="sc">~</span><span class="dv">6</span> <span class="sc">-</span> .x, <span class="at">.names =</span> <span class="st">&quot;{.col}_rev&quot;</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb2-54"><a href="#cb2-54" tabindex="-1"></a>  <span class="co"># sum scores</span></span>
-<span id="cb2-55"><a href="#cb2-55" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb2-56"><a href="#cb2-56" tabindex="-1"></a>    <span class="at">mes_other_post =</span> mes_Q3_rev <span class="sc">+</span> mes_Q7 <span class="sc">+</span> mes_Q12 <span class="sc">+</span> mes_Q14_rev <span class="sc">+</span> mes_Q20,</span>
-<span id="cb2-57"><a href="#cb2-57" tabindex="-1"></a>    <span class="at">mes_self_post =</span> mes_Q6 <span class="sc">+</span> mes_Q13 <span class="sc">+</span> mes_Q19 <span class="sc">+</span> mes_Q21,</span>
-<span id="cb2-58"><a href="#cb2-58" tabindex="-1"></a>    <span class="at">mes_affected_post =</span> mes_Q1 <span class="sc">+</span> mes_Q2 <span class="sc">+</span> mes_Q8 <span class="sc">+</span> mes_Q16_rev <span class="sc">+</span> mes_Q22_rev,</span>
-<span id="cb2-59"><a href="#cb2-59" tabindex="-1"></a>    <span class="at">mes_perspective_post =</span> mes_Q4 <span class="sc">+</span> mes_Q9 <span class="sc">+</span> mes_Q10_rev <span class="sc">+</span> mes_Q17 <span class="sc">+</span> mes_Q23,</span>
-<span id="cb2-60"><a href="#cb2-60" tabindex="-1"></a>    <span class="at">mes_imagination_post =</span> mes_Q5 <span class="sc">+</span> mes_Q11 <span class="sc">+</span> mes_Q15_rev <span class="sc">+</span> mes_Q18 <span class="sc">+</span> mes_Q24</span>
-<span id="cb2-61"><a href="#cb2-61" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb2-62"><a href="#cb2-62" tabindex="-1"></a>  <span class="fu">select</span>(id, mes_other_post, mes_self_post, mes_affected_post, mes_perspective_post, mes_imagination_post)</span>
-<span id="cb2-63"><a href="#cb2-63" tabindex="-1"></a></span>
-<span id="cb2-64"><a href="#cb2-64" tabindex="-1"></a><span class="co"># Add TSSQ subscales (Active, Conceptualization, Perspective, Present moment)</span></span>
-<span id="cb2-65"><a href="#cb2-65" tabindex="-1"></a>data_pre_tssq <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="st">&quot;../data/raw/all_law_data_pre.xlsx&quot;</span>, <span class="at">sheet =</span> <span class="st">&quot;TSSQ law&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-66"><a href="#cb2-66" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">id =</span> No) <span class="sc">|&gt;</span></span>
-<span id="cb2-67"><a href="#cb2-67" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="at">.fn =</span> <span class="sc">~</span> <span class="fu">paste0</span>(<span class="st">&quot;tssq_&quot;</span>, .), <span class="at">.cols =</span> <span class="fu">starts_with</span>(<span class="st">&quot;Q&quot;</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb2-68"><a href="#cb2-68" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb2-69"><a href="#cb2-69" tabindex="-1"></a>    <span class="at">tssq_active_pre =</span> tssq_Q3 <span class="sc">+</span> tssq_Q9 <span class="sc">+</span> tssq_Q10 <span class="sc">+</span> tssq_Q14 <span class="sc">+</span> tssq_Q16 <span class="sc">+</span> tssq_Q17 <span class="sc">+</span> tssq_Q20,</span>
-<span id="cb2-70"><a href="#cb2-70" tabindex="-1"></a>    <span class="at">tssq_conceptualization_pre =</span> tssq_Q2 <span class="sc">+</span> tssq_Q7 <span class="sc">+</span> tssq_Q8 <span class="sc">+</span> tssq_Q11 <span class="sc">+</span> tssq_Q12 <span class="sc">+</span> tssq_Q18,</span>
-<span id="cb2-71"><a href="#cb2-71" tabindex="-1"></a>    <span class="at">tssq_perspective_pre =</span> tssq_Q1 <span class="sc">+</span> tssq_Q4 <span class="sc">+</span> tssq_Q6,</span>
-<span id="cb2-72"><a href="#cb2-72" tabindex="-1"></a>    <span class="at">tssq_present_pre =</span> tssq_Q5 <span class="sc">+</span> tssq_Q13 <span class="sc">+</span> tssq_Q15 <span class="sc">+</span> tssq_Q19</span>
-<span id="cb2-73"><a href="#cb2-73" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb2-74"><a href="#cb2-74" tabindex="-1"></a>  <span class="fu">select</span>(id, tssq_active_pre, tssq_conceptualization_pre, tssq_perspective_pre, tssq_present_pre)</span>
-<span id="cb2-75"><a href="#cb2-75" tabindex="-1"></a></span>
-<span id="cb2-76"><a href="#cb2-76" tabindex="-1"></a><span class="co"># Add TSSQ subscales (Active, Conceptualization, Perspective, Present moment)</span></span>
-<span id="cb2-77"><a href="#cb2-77" tabindex="-1"></a>data_post_tssq <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="st">&quot;../data/raw/all_law_data_post.xlsx&quot;</span>, <span class="at">sheet =</span> <span class="st">&quot;TSSQ law&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-78"><a href="#cb2-78" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">id =</span> No) <span class="sc">|&gt;</span></span>
-<span id="cb2-79"><a href="#cb2-79" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="at">.fn =</span> <span class="sc">~</span> <span class="fu">paste0</span>(<span class="st">&quot;tssq_&quot;</span>, .), <span class="at">.cols =</span> <span class="fu">starts_with</span>(<span class="st">&quot;Q&quot;</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb2-80"><a href="#cb2-80" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb2-81"><a href="#cb2-81" tabindex="-1"></a>    <span class="at">tssq_active_post =</span> tssq_Q3 <span class="sc">+</span> tssq_Q9 <span class="sc">+</span> tssq_Q10 <span class="sc">+</span> tssq_Q14 <span class="sc">+</span> tssq_Q16 <span class="sc">+</span> tssq_Q17 <span class="sc">+</span> tssq_Q20,</span>
-<span id="cb2-82"><a href="#cb2-82" tabindex="-1"></a>    <span class="at">tssq_conceptualization_post =</span> tssq_Q2 <span class="sc">+</span> tssq_Q7 <span class="sc">+</span> tssq_Q8 <span class="sc">+</span> tssq_Q11 <span class="sc">+</span> tssq_Q12 <span class="sc">+</span> tssq_Q18,</span>
-<span id="cb2-83"><a href="#cb2-83" tabindex="-1"></a>    <span class="at">tssq_perspective_post =</span> tssq_Q1 <span class="sc">+</span> tssq_Q4 <span class="sc">+</span> tssq_Q6,</span>
-<span id="cb2-84"><a href="#cb2-84" tabindex="-1"></a>    <span class="at">tssq_present_post =</span> tssq_Q5 <span class="sc">+</span> tssq_Q13 <span class="sc">+</span> tssq_Q15 <span class="sc">+</span> tssq_Q19</span>
-<span id="cb2-85"><a href="#cb2-85" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb2-86"><a href="#cb2-86" tabindex="-1"></a>  <span class="fu">select</span>(id, tssq_active_post, tssq_conceptualization_post, tssq_perspective_post, tssq_present_post)</span>
-<span id="cb2-87"><a href="#cb2-87" tabindex="-1"></a></span>
-<span id="cb2-88"><a href="#cb2-88" tabindex="-1"></a><span class="co"># Combine into one dataset</span></span>
-<span id="cb2-89"><a href="#cb2-89" tabindex="-1"></a>data_processed <span class="ot">&lt;-</span> data_pre_iri <span class="sc">|&gt;</span></span>
-<span id="cb2-90"><a href="#cb2-90" tabindex="-1"></a>  <span class="fu">full_join</span>(data_post_iri, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-91"><a href="#cb2-91" tabindex="-1"></a>  <span class="fu">full_join</span>(data_pre_mes, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-92"><a href="#cb2-92" tabindex="-1"></a>  <span class="fu">full_join</span>(data_post_mes, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-93"><a href="#cb2-93" tabindex="-1"></a>  <span class="fu">full_join</span>(data_pre_tssq, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-94"><a href="#cb2-94" tabindex="-1"></a>  <span class="fu">full_join</span>(data_post_tssq, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>)</span></code></pre></div>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#   # item reverse scoring - not needed as it turns out - Ooshima clarified that the &#39;raw&#39; data has already been reverse scored</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#   mutate(across(</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#   c(iri_Q3, iri_Q4, iri_Q7, iri_Q12, iri_Q13, iri_Q14, iri_Q15, iri_Q18, iri_Q19),</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#   ~ 6 - .x,</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#   .names = &quot;{.col}_rev&quot;</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co"># )) |&gt;</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  <span class="co"># mutate(</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  <span class="co">#   iri_pt_pre = iri_Q3_rev + iri_Q8 + iri_Q11 + iri_Q15_rev + iri_Q21 + iri_Q25 + iri_Q28,</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>  <span class="co">#   iri_ec_pre = iri_Q2 + iri_Q4_rev + iri_Q9 + iri_Q14_rev + iri_Q18_rev + iri_Q20 + iri_Q22,</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  <span class="co">#   iri_fs_pre = iri_Q1 + iri_Q5 + iri_Q7_rev + iri_Q12_rev + iri_Q16 + iri_Q23 + iri_Q26,</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="co">#   iri_pd_pre = iri_Q6 + iri_Q10 + iri_Q13_rev + iri_Q17 + iri_Q19_rev + iri_Q24 + iri_Q27</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  <span class="co"># ) |&gt;</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>    <span class="at">iri_pt_pre =</span> iri_Q3 <span class="sc">+</span> iri_Q8 <span class="sc">+</span> iri_Q11 <span class="sc">+</span> iri_Q15 <span class="sc">+</span> iri_Q21 <span class="sc">+</span> iri_Q25 <span class="sc">+</span> iri_Q28,</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>    <span class="at">iri_ec_pre =</span> iri_Q2 <span class="sc">+</span> iri_Q4 <span class="sc">+</span> iri_Q9 <span class="sc">+</span> iri_Q14 <span class="sc">+</span> iri_Q18 <span class="sc">+</span> iri_Q20 <span class="sc">+</span> iri_Q22,</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>    <span class="at">iri_fs_pre =</span> iri_Q1 <span class="sc">+</span> iri_Q5 <span class="sc">+</span> iri_Q7 <span class="sc">+</span> iri_Q12 <span class="sc">+</span> iri_Q16 <span class="sc">+</span> iri_Q23 <span class="sc">+</span> iri_Q26,</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>    <span class="at">iri_pd_pre =</span> iri_Q6 <span class="sc">+</span> iri_Q10 <span class="sc">+</span> iri_Q13 <span class="sc">+</span> iri_Q17 <span class="sc">+</span> iri_Q19 <span class="sc">+</span> iri_Q24 <span class="sc">+</span> iri_Q27</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>  <span class="fu">select</span>(id, iri_pt_pre, iri_ec_pre, iri_fs_pre, iri_pd_pre)</span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>data_post_iri <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="st">&quot;../data/raw/all_law_data_post.xlsx&quot;</span>, <span class="at">sheet =</span> <span class="st">&quot;IRI law&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">id =</span> No) <span class="sc">|&gt;</span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="at">.fn =</span> <span class="sc">~</span> <span class="fu">paste0</span>(<span class="st">&quot;iri_&quot;</span>, .), <span class="at">.cols =</span> <span class="fu">starts_with</span>(<span class="st">&quot;Q&quot;</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#   # item reverse scoring - not needed as it turns out - Ooshima clarified that the &#39;raw&#39; data has already been reverse scored</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#   mutate(across(</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#   c(iri_Q3, iri_Q4, iri_Q7, iri_Q12, iri_Q13, iri_Q14, iri_Q15, iri_Q18, iri_Q19),</span></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#   ~ 6 - .x,</span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#   .names = &quot;{.col}_rev&quot;</span></span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co"># )) |&gt;</span></span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a>  <span class="co"># mutate(</span></span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a>  <span class="co">#   iri_pt_post = iri_Q3_rev + iri_Q8 + iri_Q11 + iri_Q15_rev + iri_Q21 + iri_Q25 + iri_Q28,</span></span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a>  <span class="co">#   iri_ec_post = iri_Q2 + iri_Q4_rev + iri_Q9 + iri_Q14_rev + iri_Q18_rev + iri_Q20 + iri_Q22,</span></span>
+<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a>  <span class="co">#   iri_fs_post = iri_Q1 + iri_Q5 + iri_Q7_rev + iri_Q12_rev + iri_Q16 + iri_Q23 + iri_Q26,</span></span>
+<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a>  <span class="co">#   iri_pd_post = iri_Q6 + iri_Q10 + iri_Q13_rev + iri_Q17 + iri_Q19_rev + iri_Q24 + iri_Q27</span></span>
+<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a>  <span class="co"># ) |&gt;</span></span>
+<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a>    <span class="at">iri_pt_post =</span> iri_Q3 <span class="sc">+</span> iri_Q8 <span class="sc">+</span> iri_Q11 <span class="sc">+</span> iri_Q15 <span class="sc">+</span> iri_Q21 <span class="sc">+</span> iri_Q25 <span class="sc">+</span> iri_Q28,</span>
+<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a>    <span class="at">iri_ec_post =</span> iri_Q2 <span class="sc">+</span> iri_Q4 <span class="sc">+</span> iri_Q9 <span class="sc">+</span> iri_Q14 <span class="sc">+</span> iri_Q18 <span class="sc">+</span> iri_Q20 <span class="sc">+</span> iri_Q22,</span>
+<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a>    <span class="at">iri_fs_post =</span> iri_Q1 <span class="sc">+</span> iri_Q5 <span class="sc">+</span> iri_Q7 <span class="sc">+</span> iri_Q12 <span class="sc">+</span> iri_Q16 <span class="sc">+</span> iri_Q23 <span class="sc">+</span> iri_Q26,</span>
+<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a>    <span class="at">iri_pd_post =</span> iri_Q6 <span class="sc">+</span> iri_Q10 <span class="sc">+</span> iri_Q13 <span class="sc">+</span> iri_Q17 <span class="sc">+</span> iri_Q19 <span class="sc">+</span> iri_Q24 <span class="sc">+</span> iri_Q27</span>
+<span id="cb2-44"><a href="#cb2-44" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb2-45"><a href="#cb2-45" tabindex="-1"></a>  <span class="fu">select</span>(id, iri_pt_post, iri_ec_post, iri_fs_post, iri_pd_post)</span>
+<span id="cb2-46"><a href="#cb2-46" tabindex="-1"></a></span>
+<span id="cb2-47"><a href="#cb2-47" tabindex="-1"></a><span class="co"># Add MES subscales (Self, Other, Affectedness, Perspective-taking, Imagination)</span></span>
+<span id="cb2-48"><a href="#cb2-48" tabindex="-1"></a>data_pre_mes <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="st">&quot;../data/raw/all_law_data_pre.xlsx&quot;</span>, <span class="at">sheet =</span> <span class="st">&quot;MES law&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-49"><a href="#cb2-49" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">id =</span> No) <span class="sc">|&gt;</span></span>
+<span id="cb2-50"><a href="#cb2-50" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="at">.fn =</span> <span class="sc">~</span> <span class="fu">paste0</span>(<span class="st">&quot;mes_&quot;</span>, .), <span class="at">.cols =</span> <span class="fu">starts_with</span>(<span class="st">&quot;Q&quot;</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb2-51"><a href="#cb2-51" tabindex="-1"></a>  <span class="co"># # reverse score</span></span>
+<span id="cb2-52"><a href="#cb2-52" tabindex="-1"></a>  <span class="co"># mutate(across(c(mes_Q3, mes_Q10, mes_Q14, mes_Q15, mes_Q16, mes_Q22), ~6 - .x, .names = &quot;{.col}_rev&quot;)) |&gt;</span></span>
+<span id="cb2-53"><a href="#cb2-53" tabindex="-1"></a>  <span class="co"># # sum scores</span></span>
+<span id="cb2-54"><a href="#cb2-54" tabindex="-1"></a>  <span class="co"># mutate(</span></span>
+<span id="cb2-55"><a href="#cb2-55" tabindex="-1"></a>  <span class="co">#   mes_other_pre = mes_Q3_rev + mes_Q7 + mes_Q12 + mes_Q14_rev + mes_Q20,</span></span>
+<span id="cb2-56"><a href="#cb2-56" tabindex="-1"></a>  <span class="co">#   mes_self_pre = mes_Q6 + mes_Q13 + mes_Q19 + mes_Q21,</span></span>
+<span id="cb2-57"><a href="#cb2-57" tabindex="-1"></a>  <span class="co">#   mes_affected_pre = mes_Q1 + mes_Q2 + mes_Q8 + mes_Q16_rev + mes_Q22_rev,</span></span>
+<span id="cb2-58"><a href="#cb2-58" tabindex="-1"></a>  <span class="co">#   mes_perspective_pre = mes_Q4 + mes_Q9 + mes_Q10_rev + mes_Q17 + mes_Q23,</span></span>
+<span id="cb2-59"><a href="#cb2-59" tabindex="-1"></a>  <span class="co">#   mes_imagination_pre = mes_Q5 + mes_Q11 + mes_Q15_rev + mes_Q18 + mes_Q24</span></span>
+<span id="cb2-60"><a href="#cb2-60" tabindex="-1"></a>  <span class="co"># ) |&gt;</span></span>
+<span id="cb2-61"><a href="#cb2-61" tabindex="-1"></a>  <span class="co"># sum scores</span></span>
+<span id="cb2-62"><a href="#cb2-62" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb2-63"><a href="#cb2-63" tabindex="-1"></a>    <span class="at">mes_other_pre =</span> mes_Q3 <span class="sc">+</span> mes_Q7 <span class="sc">+</span> mes_Q12 <span class="sc">+</span> mes_Q14 <span class="sc">+</span> mes_Q20,</span>
+<span id="cb2-64"><a href="#cb2-64" tabindex="-1"></a>    <span class="at">mes_self_pre =</span> mes_Q6 <span class="sc">+</span> mes_Q13 <span class="sc">+</span> mes_Q19 <span class="sc">+</span> mes_Q21,</span>
+<span id="cb2-65"><a href="#cb2-65" tabindex="-1"></a>    <span class="at">mes_affected_pre =</span> mes_Q1 <span class="sc">+</span> mes_Q2 <span class="sc">+</span> mes_Q8 <span class="sc">+</span> mes_Q16 <span class="sc">+</span> mes_Q22,</span>
+<span id="cb2-66"><a href="#cb2-66" tabindex="-1"></a>    <span class="at">mes_perspective_pre =</span> mes_Q4 <span class="sc">+</span> mes_Q9 <span class="sc">+</span> mes_Q10 <span class="sc">+</span> mes_Q17 <span class="sc">+</span> mes_Q23,</span>
+<span id="cb2-67"><a href="#cb2-67" tabindex="-1"></a>    <span class="at">mes_imagination_pre =</span> mes_Q5 <span class="sc">+</span> mes_Q11 <span class="sc">+</span> mes_Q15 <span class="sc">+</span> mes_Q18 <span class="sc">+</span> mes_Q24</span>
+<span id="cb2-68"><a href="#cb2-68" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb2-69"><a href="#cb2-69" tabindex="-1"></a>  <span class="fu">select</span>(id, mes_other_pre, mes_self_pre, mes_affected_pre, mes_perspective_pre, mes_imagination_pre)</span>
+<span id="cb2-70"><a href="#cb2-70" tabindex="-1"></a></span>
+<span id="cb2-71"><a href="#cb2-71" tabindex="-1"></a>data_post_mes <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="st">&quot;../data/raw/all_law_data_post.xlsx&quot;</span>, <span class="at">sheet =</span> <span class="st">&quot;MES law&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-72"><a href="#cb2-72" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">id =</span> No) <span class="sc">|&gt;</span></span>
+<span id="cb2-73"><a href="#cb2-73" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="at">.fn =</span> <span class="sc">~</span> <span class="fu">paste0</span>(<span class="st">&quot;mes_&quot;</span>, .), <span class="at">.cols =</span> <span class="fu">starts_with</span>(<span class="st">&quot;Q&quot;</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb2-74"><a href="#cb2-74" tabindex="-1"></a>  <span class="co"># # reverse score</span></span>
+<span id="cb2-75"><a href="#cb2-75" tabindex="-1"></a>  <span class="co"># mutate(across(c(mes_Q3, mes_Q10, mes_Q14, mes_Q15, mes_Q16, mes_Q22), ~6 - .x, .names = &quot;{.col}_rev&quot;)) |&gt;</span></span>
+<span id="cb2-76"><a href="#cb2-76" tabindex="-1"></a>  <span class="co"># # sum scores</span></span>
+<span id="cb2-77"><a href="#cb2-77" tabindex="-1"></a>  <span class="co"># mutate(</span></span>
+<span id="cb2-78"><a href="#cb2-78" tabindex="-1"></a>  <span class="co">#   mes_other_post = mes_Q3_rev + mes_Q7 + mes_Q12 + mes_Q14_rev + mes_Q20,</span></span>
+<span id="cb2-79"><a href="#cb2-79" tabindex="-1"></a>  <span class="co">#   mes_self_post = mes_Q6 + mes_Q13 + mes_Q19 + mes_Q21,</span></span>
+<span id="cb2-80"><a href="#cb2-80" tabindex="-1"></a>  <span class="co">#   mes_affected_post = mes_Q1 + mes_Q2 + mes_Q8 + mes_Q16_rev + mes_Q22_rev,</span></span>
+<span id="cb2-81"><a href="#cb2-81" tabindex="-1"></a>  <span class="co">#   mes_perspective_post = mes_Q4 + mes_Q9 + mes_Q10_rev + mes_Q17 + mes_Q23,</span></span>
+<span id="cb2-82"><a href="#cb2-82" tabindex="-1"></a>  <span class="co">#   mes_imagination_post = mes_Q5 + mes_Q11 + mes_Q15_rev + mes_Q18 + mes_Q24</span></span>
+<span id="cb2-83"><a href="#cb2-83" tabindex="-1"></a>  <span class="co"># ) |&gt;</span></span>
+<span id="cb2-84"><a href="#cb2-84" tabindex="-1"></a>  <span class="co"># sum scores</span></span>
+<span id="cb2-85"><a href="#cb2-85" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb2-86"><a href="#cb2-86" tabindex="-1"></a>    <span class="at">mes_other_post =</span> mes_Q3 <span class="sc">+</span> mes_Q7 <span class="sc">+</span> mes_Q12 <span class="sc">+</span> mes_Q14 <span class="sc">+</span> mes_Q20,</span>
+<span id="cb2-87"><a href="#cb2-87" tabindex="-1"></a>    <span class="at">mes_self_post =</span> mes_Q6 <span class="sc">+</span> mes_Q13 <span class="sc">+</span> mes_Q19 <span class="sc">+</span> mes_Q21,</span>
+<span id="cb2-88"><a href="#cb2-88" tabindex="-1"></a>    <span class="at">mes_affected_post =</span> mes_Q1 <span class="sc">+</span> mes_Q2 <span class="sc">+</span> mes_Q8 <span class="sc">+</span> mes_Q16 <span class="sc">+</span> mes_Q22,</span>
+<span id="cb2-89"><a href="#cb2-89" tabindex="-1"></a>    <span class="at">mes_perspective_post =</span> mes_Q4 <span class="sc">+</span> mes_Q9 <span class="sc">+</span> mes_Q10 <span class="sc">+</span> mes_Q17 <span class="sc">+</span> mes_Q23,</span>
+<span id="cb2-90"><a href="#cb2-90" tabindex="-1"></a>    <span class="at">mes_imagination_post =</span> mes_Q5 <span class="sc">+</span> mes_Q11 <span class="sc">+</span> mes_Q15 <span class="sc">+</span> mes_Q18 <span class="sc">+</span> mes_Q24</span>
+<span id="cb2-91"><a href="#cb2-91" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb2-92"><a href="#cb2-92" tabindex="-1"></a>  <span class="fu">select</span>(id, mes_other_post, mes_self_post, mes_affected_post, mes_perspective_post, mes_imagination_post)</span>
+<span id="cb2-93"><a href="#cb2-93" tabindex="-1"></a></span>
+<span id="cb2-94"><a href="#cb2-94" tabindex="-1"></a><span class="co"># Add TSSQ subscales (Active, Conceptualization, Perspective, Present moment)</span></span>
+<span id="cb2-95"><a href="#cb2-95" tabindex="-1"></a>data_pre_tssq <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="st">&quot;../data/raw/all_law_data_pre.xlsx&quot;</span>, <span class="at">sheet =</span> <span class="st">&quot;TSSQ law&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-96"><a href="#cb2-96" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">id =</span> No) <span class="sc">|&gt;</span></span>
+<span id="cb2-97"><a href="#cb2-97" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="at">.fn =</span> <span class="sc">~</span> <span class="fu">paste0</span>(<span class="st">&quot;tssq_&quot;</span>, .), <span class="at">.cols =</span> <span class="fu">starts_with</span>(<span class="st">&quot;Q&quot;</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb2-98"><a href="#cb2-98" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb2-99"><a href="#cb2-99" tabindex="-1"></a>    <span class="at">tssq_active_pre =</span> tssq_Q3 <span class="sc">+</span> tssq_Q9 <span class="sc">+</span> tssq_Q10 <span class="sc">+</span> tssq_Q14 <span class="sc">+</span> tssq_Q16 <span class="sc">+</span> tssq_Q17 <span class="sc">+</span> tssq_Q20,</span>
+<span id="cb2-100"><a href="#cb2-100" tabindex="-1"></a>    <span class="at">tssq_conceptualization_pre =</span> tssq_Q2 <span class="sc">+</span> tssq_Q7 <span class="sc">+</span> tssq_Q8 <span class="sc">+</span> tssq_Q11 <span class="sc">+</span> tssq_Q12 <span class="sc">+</span> tssq_Q18,</span>
+<span id="cb2-101"><a href="#cb2-101" tabindex="-1"></a>    <span class="at">tssq_perspective_pre =</span> tssq_Q1 <span class="sc">+</span> tssq_Q4 <span class="sc">+</span> tssq_Q6,</span>
+<span id="cb2-102"><a href="#cb2-102" tabindex="-1"></a>    <span class="at">tssq_present_pre =</span> tssq_Q5 <span class="sc">+</span> tssq_Q13 <span class="sc">+</span> tssq_Q15 <span class="sc">+</span> tssq_Q19</span>
+<span id="cb2-103"><a href="#cb2-103" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb2-104"><a href="#cb2-104" tabindex="-1"></a>  <span class="fu">select</span>(id, tssq_active_pre, tssq_conceptualization_pre, tssq_perspective_pre, tssq_present_pre)</span>
+<span id="cb2-105"><a href="#cb2-105" tabindex="-1"></a></span>
+<span id="cb2-106"><a href="#cb2-106" tabindex="-1"></a><span class="co"># Add TSSQ subscales (Active, Conceptualization, Perspective, Present moment)</span></span>
+<span id="cb2-107"><a href="#cb2-107" tabindex="-1"></a>data_post_tssq <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="st">&quot;../data/raw/all_law_data_post.xlsx&quot;</span>, <span class="at">sheet =</span> <span class="st">&quot;TSSQ law&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-108"><a href="#cb2-108" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">id =</span> No) <span class="sc">|&gt;</span></span>
+<span id="cb2-109"><a href="#cb2-109" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="at">.fn =</span> <span class="sc">~</span> <span class="fu">paste0</span>(<span class="st">&quot;tssq_&quot;</span>, .), <span class="at">.cols =</span> <span class="fu">starts_with</span>(<span class="st">&quot;Q&quot;</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb2-110"><a href="#cb2-110" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb2-111"><a href="#cb2-111" tabindex="-1"></a>    <span class="at">tssq_active_post =</span> tssq_Q3 <span class="sc">+</span> tssq_Q9 <span class="sc">+</span> tssq_Q10 <span class="sc">+</span> tssq_Q14 <span class="sc">+</span> tssq_Q16 <span class="sc">+</span> tssq_Q17 <span class="sc">+</span> tssq_Q20,</span>
+<span id="cb2-112"><a href="#cb2-112" tabindex="-1"></a>    <span class="at">tssq_conceptualization_post =</span> tssq_Q2 <span class="sc">+</span> tssq_Q7 <span class="sc">+</span> tssq_Q8 <span class="sc">+</span> tssq_Q11 <span class="sc">+</span> tssq_Q12 <span class="sc">+</span> tssq_Q18,</span>
+<span id="cb2-113"><a href="#cb2-113" tabindex="-1"></a>    <span class="at">tssq_perspective_post =</span> tssq_Q1 <span class="sc">+</span> tssq_Q4 <span class="sc">+</span> tssq_Q6,</span>
+<span id="cb2-114"><a href="#cb2-114" tabindex="-1"></a>    <span class="at">tssq_present_post =</span> tssq_Q5 <span class="sc">+</span> tssq_Q13 <span class="sc">+</span> tssq_Q15 <span class="sc">+</span> tssq_Q19</span>
+<span id="cb2-115"><a href="#cb2-115" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb2-116"><a href="#cb2-116" tabindex="-1"></a>  <span class="fu">select</span>(id, tssq_active_post, tssq_conceptualization_post, tssq_perspective_post, tssq_present_post)</span>
+<span id="cb2-117"><a href="#cb2-117" tabindex="-1"></a></span>
+<span id="cb2-118"><a href="#cb2-118" tabindex="-1"></a><span class="co"># Combine into one dataset</span></span>
+<span id="cb2-119"><a href="#cb2-119" tabindex="-1"></a>data_combined <span class="ot">&lt;-</span> data_pre_iri <span class="sc">|&gt;</span></span>
+<span id="cb2-120"><a href="#cb2-120" tabindex="-1"></a>  <span class="fu">full_join</span>(data_post_iri, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-121"><a href="#cb2-121" tabindex="-1"></a>  <span class="fu">full_join</span>(data_pre_mes, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-122"><a href="#cb2-122" tabindex="-1"></a>  <span class="fu">full_join</span>(data_post_mes, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-123"><a href="#cb2-123" tabindex="-1"></a>  <span class="fu">full_join</span>(data_pre_tssq, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-124"><a href="#cb2-124" tabindex="-1"></a>  <span class="fu">full_join</span>(data_post_tssq, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>)</span></code></pre></div>
 </div>
 <div id="exclusions" class="section level1">
 <h1>Exclusions</h1>
-<p>The stated exclusion strategy doesn’t make sense to me. 50% of the
-data will lie within the IQR range by definition, but the authors
-exclude a small proportion on only some subscales.</p>
-<p>“For each subcategory of each index, we applied the interquartile
-range (IQR) method to identify outliers, which are data points that fall
-outside the IQR. We conducted the data analysis by excluding outliers
-upon observation. Outliers were excluded if they were observed. An
-overview of outlier counts revealed four (n = 37) for MES
-Perspective-taking, one (n = 40) each for Self-orientation and
-Other-orientation, and one (n = 40) for the conceptualization of the
-TSSQ.”</p>
-<p>I therefore simply do no exclusions in the below analyses.</p>
+<p>Ooshima clarified by email that their exclusion strategy was as
+follows:</p>
+<p>“Regarding the IQR method: it defines outliers as values falling
+outside the range between the first quartile (Q1) – 1.5 * IQR and the
+third quartile (Q3)+ 1.5 * IQR. IQR means Q3 – Q1. As a method, we used
+Excel’s box-and-whisker diagram drawing function to detect each period
+of each scale, and we also checked the results by manually calculating
+them.”</p>
+<p>I.e., IQR ± 1.5IQR, which wasn’t explicit in the manuscript.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># IQR exclusion strategy function</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>replace_iqr_outliers_with_na <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  q1 <span class="ot">&lt;-</span> <span class="fu">quantile</span>(x, <span class="fl">0.25</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  q3 <span class="ot">&lt;-</span> <span class="fu">quantile</span>(x, <span class="fl">0.75</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  iqr <span class="ot">&lt;-</span> q3 <span class="sc">-</span> q1</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  lower <span class="ot">&lt;-</span> q1 <span class="sc">-</span> <span class="fl">1.5</span> <span class="sc">*</span> iqr</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  upper <span class="ot">&lt;-</span> q3 <span class="sc">+</span> <span class="fl">1.5</span> <span class="sc">*</span> iqr</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  <span class="fu">ifelse</span>(x <span class="sc">&lt;</span> lower <span class="sc">|</span> x <span class="sc">&gt;</span> upper, <span class="cn">NA</span>, x)</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>}</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>data_processed <span class="ot">&lt;-</span> data_combined <span class="sc">%&gt;%</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="sc">-</span>id, replace_iqr_outliers_with_na, <span class="at">.names =</span> <span class="st">&quot;{.col}_outliers_excluded&quot;</span>))</span></code></pre></div>
 </div>
 <div id="write-to-disk" class="section level1">
 <h1>Write to disk</h1>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">write_csv</span>(data_processed, <span class="st">&quot;../data/processed/data_processed.csv&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">write_csv</span>(data_processed, <span class="st">&quot;../data/processed/data_processed.csv&quot;</span>)</span></code></pre></div>
 </div>
 
 
