@@ -53,12 +53,14 @@ data_pre_iri <- read_xlsx("../data/raw/all_law_data_pre.xlsx", sheet = "IRI law"
   #   iri_pd_pre = iri_Q6 + iri_Q10 + iri_Q13_rev + iri_Q17 + iri_Q19_rev + iri_Q24 + iri_Q27
   # ) |>
   mutate(
+    iri_pre  = iri_Q3 + iri_Q8 + iri_Q11 + iri_Q15 + iri_Q21 + iri_Q25 + iri_Q28 + iri_Q2 + iri_Q4 + iri_Q9 + iri_Q14 + iri_Q18 + iri_Q20 + iri_Q22 + iri_Q1 + iri_Q5 + iri_Q7 + iri_Q12 + iri_Q16 + iri_Q23 + iri_Q26 + iri_Q6 + iri_Q10 + iri_Q13 + iri_Q17 + iri_Q19 + iri_Q24 + iri_Q27,
     iri_pt_pre = iri_Q3 + iri_Q8 + iri_Q11 + iri_Q15 + iri_Q21 + iri_Q25 + iri_Q28,
+    iri_pt_pre_alt = iri_Q3 + iri_Q8 + iri_Q11 + iri_Q15 + iri_Q21 + iri_Q25 + iri_Q28 + iri_Q18, # Ooshima clarified that item 18 was used in the PT scale, but i wasn't clear whether he meant this was correctly or incorrectly done. 
     iri_ec_pre = iri_Q2 + iri_Q4 + iri_Q9 + iri_Q14 + iri_Q18 + iri_Q20 + iri_Q22,
     iri_fs_pre = iri_Q1 + iri_Q5 + iri_Q7 + iri_Q12 + iri_Q16 + iri_Q23 + iri_Q26,
     iri_pd_pre = iri_Q6 + iri_Q10 + iri_Q13 + iri_Q17 + iri_Q19 + iri_Q24 + iri_Q27
   ) |>
-  select(id, iri_pt_pre, iri_ec_pre, iri_fs_pre, iri_pd_pre)
+  select(id, iri_pre, iri_pt_pre, iri_pt_pre_alt, iri_ec_pre, iri_fs_pre, iri_pd_pre)
 
 data_post_iri <- read_xlsx("../data/raw/all_law_data_post.xlsx", sheet = "IRI law") |>
   rename(id = No) |>
@@ -76,12 +78,14 @@ data_post_iri <- read_xlsx("../data/raw/all_law_data_post.xlsx", sheet = "IRI la
   #   iri_pd_post = iri_Q6 + iri_Q10 + iri_Q13_rev + iri_Q17 + iri_Q19_rev + iri_Q24 + iri_Q27
   # ) |>
   mutate(
+    iri_post = iri_Q3 + iri_Q8 + iri_Q11 + iri_Q15 + iri_Q21 + iri_Q25 + iri_Q28 + iri_Q2 + iri_Q4 + iri_Q9 + iri_Q14 + iri_Q18 + iri_Q20 + iri_Q22 + iri_Q1 + iri_Q5 + iri_Q7 + iri_Q12 + iri_Q16 + iri_Q23 + iri_Q26 + iri_Q6 + iri_Q10 + iri_Q13 + iri_Q17 + iri_Q19 + iri_Q24 + iri_Q27,
     iri_pt_post = iri_Q3 + iri_Q8 + iri_Q11 + iri_Q15 + iri_Q21 + iri_Q25 + iri_Q28,
+    iri_pt_post_alt = iri_Q3 + iri_Q8 + iri_Q11 + iri_Q15 + iri_Q21 + iri_Q25 + iri_Q28 + iri_Q18, # Ooshima clarified that item 18 was used in the PT scale, but i wasn't clear whether he meant this was correctly or incorrectly done. 
     iri_ec_post = iri_Q2 + iri_Q4 + iri_Q9 + iri_Q14 + iri_Q18 + iri_Q20 + iri_Q22,
     iri_fs_post = iri_Q1 + iri_Q5 + iri_Q7 + iri_Q12 + iri_Q16 + iri_Q23 + iri_Q26,
     iri_pd_post = iri_Q6 + iri_Q10 + iri_Q13 + iri_Q17 + iri_Q19 + iri_Q24 + iri_Q27
   ) |>
-  select(id, iri_pt_post, iri_ec_post, iri_fs_post, iri_pd_post)
+  select(id, iri_post, iri_pt_post, iri_pt_post_alt, iri_ec_post, iri_fs_post, iri_pd_post)
 
 # Add MES subscales (Self, Other, Affectedness, Perspective-taking, Imagination)
 data_pre_mes <- read_xlsx("../data/raw/all_law_data_pre.xlsx", sheet = "MES law") |>
@@ -99,13 +103,14 @@ data_pre_mes <- read_xlsx("../data/raw/all_law_data_pre.xlsx", sheet = "MES law"
   # ) |>
   # sum scores
   mutate(
+    mes_pre = mes_Q3 + mes_Q7 + mes_Q12 + mes_Q14 + mes_Q20 + mes_Q6 + mes_Q13 + mes_Q19 + mes_Q21 + mes_Q1 + mes_Q2 + mes_Q8 + mes_Q16 + mes_Q22 + mes_Q4 + mes_Q9 + mes_Q10 + mes_Q17 + mes_Q23 + mes_Q5 + mes_Q11 + mes_Q15 + mes_Q18 + mes_Q24,
     mes_other_pre = mes_Q3 + mes_Q7 + mes_Q12 + mes_Q14 + mes_Q20,
     mes_self_pre = mes_Q6 + mes_Q13 + mes_Q19 + mes_Q21,
     mes_affected_pre = mes_Q1 + mes_Q2 + mes_Q8 + mes_Q16 + mes_Q22,
     mes_perspective_pre = mes_Q4 + mes_Q9 + mes_Q10 + mes_Q17 + mes_Q23,
     mes_imagination_pre = mes_Q5 + mes_Q11 + mes_Q15 + mes_Q18 + mes_Q24
   ) |>
-  select(id, mes_other_pre, mes_self_pre, mes_affected_pre, mes_perspective_pre, mes_imagination_pre)
+  select(id, mes_pre, mes_other_pre, mes_self_pre, mes_affected_pre, mes_perspective_pre, mes_imagination_pre)
 
 data_post_mes <- read_xlsx("../data/raw/all_law_data_post.xlsx", sheet = "MES law") |>
   rename(id = No) |>
@@ -122,37 +127,40 @@ data_post_mes <- read_xlsx("../data/raw/all_law_data_post.xlsx", sheet = "MES la
   # ) |>
   # sum scores
   mutate(
+    mes_post = mes_Q3 + mes_Q7 + mes_Q12 + mes_Q14 + mes_Q20 + mes_Q6 + mes_Q13 + mes_Q19 + mes_Q21 + mes_Q1 + mes_Q2 + mes_Q8 + mes_Q16 + mes_Q22 + mes_Q4 + mes_Q9 + mes_Q10 + mes_Q17 + mes_Q23 + mes_Q5 + mes_Q11 + mes_Q15 + mes_Q18 + mes_Q24,
     mes_other_post = mes_Q3 + mes_Q7 + mes_Q12 + mes_Q14 + mes_Q20,
     mes_self_post = mes_Q6 + mes_Q13 + mes_Q19 + mes_Q21,
     mes_affected_post = mes_Q1 + mes_Q2 + mes_Q8 + mes_Q16 + mes_Q22,
     mes_perspective_post = mes_Q4 + mes_Q9 + mes_Q10 + mes_Q17 + mes_Q23,
     mes_imagination_post = mes_Q5 + mes_Q11 + mes_Q15 + mes_Q18 + mes_Q24
   ) |>
-  select(id, mes_other_post, mes_self_post, mes_affected_post, mes_perspective_post, mes_imagination_post)
+  select(id, mes_post, mes_other_post, mes_self_post, mes_affected_post, mes_perspective_post, mes_imagination_post)
 
 # Add TSSQ subscales (Active, Conceptualization, Perspective, Present moment)
 data_pre_tssq <- read_xlsx("../data/raw/all_law_data_pre.xlsx", sheet = "TSSQ law") |>
   rename(id = No) |>
   rename_with(.fn = ~ paste0("tssq_", .), .cols = starts_with("Q")) |>
   mutate(
+    tssq_pre = tssq_Q3 + tssq_Q9 + tssq_Q10 + tssq_Q14 + tssq_Q16 + tssq_Q17 + tssq_Q20 + tssq_Q2 + tssq_Q7 + tssq_Q8 + tssq_Q11 + tssq_Q12 + tssq_Q18 + tssq_Q1 + tssq_Q4 + tssq_Q6 + tssq_Q5 + tssq_Q13 + tssq_Q15 + tssq_Q19,
     tssq_active_pre = tssq_Q3 + tssq_Q9 + tssq_Q10 + tssq_Q14 + tssq_Q16 + tssq_Q17 + tssq_Q20,
     tssq_conceptualization_pre = tssq_Q2 + tssq_Q7 + tssq_Q8 + tssq_Q11 + tssq_Q12 + tssq_Q18,
     tssq_perspective_pre = tssq_Q1 + tssq_Q4 + tssq_Q6,
     tssq_present_pre = tssq_Q5 + tssq_Q13 + tssq_Q15 + tssq_Q19
   ) |>
-  select(id, tssq_active_pre, tssq_conceptualization_pre, tssq_perspective_pre, tssq_present_pre)
+  select(id, tssq_pre, tssq_active_pre, tssq_conceptualization_pre, tssq_perspective_pre, tssq_present_pre)
 
 # Add TSSQ subscales (Active, Conceptualization, Perspective, Present moment)
 data_post_tssq <- read_xlsx("../data/raw/all_law_data_post.xlsx", sheet = "TSSQ law") |>
   rename(id = No) |>
   rename_with(.fn = ~ paste0("tssq_", .), .cols = starts_with("Q")) |>
   mutate(
+    tssq_post = tssq_Q3 + tssq_Q9 + tssq_Q10 + tssq_Q14 + tssq_Q16 + tssq_Q17 + tssq_Q20 + tssq_Q2 + tssq_Q7 + tssq_Q8 + tssq_Q11 + tssq_Q12 + tssq_Q18 + tssq_Q1 + tssq_Q4 + tssq_Q6 + tssq_Q5 + tssq_Q13 + tssq_Q15 + tssq_Q19,
     tssq_active_post = tssq_Q3 + tssq_Q9 + tssq_Q10 + tssq_Q14 + tssq_Q16 + tssq_Q17 + tssq_Q20,
     tssq_conceptualization_post = tssq_Q2 + tssq_Q7 + tssq_Q8 + tssq_Q11 + tssq_Q12 + tssq_Q18,
     tssq_perspective_post = tssq_Q1 + tssq_Q4 + tssq_Q6,
     tssq_present_post = tssq_Q5 + tssq_Q13 + tssq_Q15 + tssq_Q19
   ) |>
-  select(id, tssq_active_post, tssq_conceptualization_post, tssq_perspective_post, tssq_present_post)
+  select(id, tssq_post, tssq_active_post, tssq_conceptualization_post, tssq_perspective_post, tssq_present_post)
 
 # Combine into one dataset
 data_combined <- data_pre_iri |>

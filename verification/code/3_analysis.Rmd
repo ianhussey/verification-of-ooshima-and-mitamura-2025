@@ -135,45 +135,63 @@ The original article found significant *increases* in the following variables:
 
 ### Verification:
 
+Check that t-test is implmented correctly:
+
+```{r}
+
+# simulate data where post > pre by a lot, in a large sample
+pre <- rnorm(n = 1000, mean = 0, sd = 1)
+post <- rnorm(n = 1000, mean = 1, sd = 1)
+
+t.test(post,
+       pre,
+       alternative = "greater",
+       paired = TRUE,
+       var.equal = TRUE)
+
+```
+
 Cohen's $d_{z}$ is approximated from the *t*-statistic and df, as in the original publication.
 
 "One-tailed tests were conducted for PT of IRI and Perspective-taking of MES based on the research hypothesis that scores on perspective taking would increase from pre- to post-training." 
 
 ```{r}
 
-tidy_t <- function(data, pre, post, var_equal, name, alternative = "two.sided"){
-  t.test(pull(data, !!enquo(pre)),
-         pull(data, !!enquo(post)),
+tidy_t <- function(data, post, pre, var_equal, name, alternative = "two.sided"){
+  t.test(pull(data, !!enquo(post)),
+         pull(data, !!enquo(pre)),
          alternative = alternative,
          paired = TRUE,
-         var_equal = var_equal) |>
+         var.equal = var_equal) |>
     broom::tidy() |>
     mutate(outcome = name,
            hypothesis = alternative,
            var_equal = var_equal) |>
-    select(outcome, hypothesis, var_equal, mean_diff_ci_lower = conf.low, mean_diff_ci_upper = conf.high,
-           mean_diff = estimate, t = statistic, df = parameter, p = p.value) |>
+    select(outcome, hypothesis, var_equal, 
+           mean_diff = estimate, mean_diff_ci_lower = conf.low, mean_diff_ci_upper = conf.high,
+           t = statistic, df = parameter, p = p.value) |>
     # cohen's d_z estimated from the the t and df.
     mutate(d_z = t / sqrt(df + 1))
 }
 
 res_t <- bind_rows(
-  tidy_t(data_processed, iri_pt_pre, iri_pt_post, var_equal = TRUE, "IRI PT", alternative = "greater"),
-  tidy_t(data_processed, mes_perspective_pre, mes_perspective_post, var_equal = TRUE, "MES PT", alternative = "greater"),
-  tidy_t(data_processed, tssq_perspective_pre, tssq_perspective_post, var_equal = TRUE, "TSSQ PT"), # , alternative = "greater" - not used in original paper, unclear to me why
+  tidy_t(data_processed, iri_pt_post, iri_pt_pre, var_equal = TRUE, "IRI PT", alternative = "greater"),
+  tidy_t(data_processed, iri_pt_post_alt, iri_pt_pre_alt, var_equal = TRUE, "IRI PT alt scoring including item 18", alternative = "greater"),
+  tidy_t(data_processed, mes_perspective_post, mes_perspective_pre, var_equal = TRUE, "MES PT", alternative = "greater"),
+  tidy_t(data_processed, tssq_perspective_post, tssq_perspective_pre, var_equal = TRUE, "TSSQ PT"), # , alternative = "greater" - not used in original paper, unclear to me why
   
-  tidy_t(data_processed, iri_ec_pre, iri_ec_post, var_equal = TRUE, "IRI EC"),
-  tidy_t(data_processed, iri_fs_pre, iri_fs_post, var_equal = TRUE, "IRI FS"),
-  tidy_t(data_processed, iri_pd_pre, iri_pd_post, var_equal = TRUE, "IRI PD"),
+  tidy_t(data_processed, iri_ec_post, iri_ec_pre, var_equal = TRUE, "IRI EC"),
+  tidy_t(data_processed, iri_fs_post, iri_fs_pre, var_equal = TRUE, "IRI FS"),
+  tidy_t(data_processed, iri_pd_post, iri_pd_pre, var_equal = TRUE, "IRI PD"),
   
-  tidy_t(data_processed, mes_other_pre, mes_other_post, var_equal = FALSE, "MES other"),
-  tidy_t(data_processed, mes_self_pre, mes_self_post, var_equal = TRUE, "MES self"),
-  tidy_t(data_processed, mes_affected_pre, mes_affected_post, var_equal = FALSE, "MES affected"),
-  tidy_t(data_processed, mes_imagination_pre, mes_imagination_post, var_equal = FALSE, "MES imagination"),
+  tidy_t(data_processed, mes_other_post, mes_other_pre, var_equal = FALSE, "MES other"),
+  tidy_t(data_processed, mes_self_post, mes_self_pre, var_equal = TRUE, "MES self"),
+  tidy_t(data_processed, mes_affected_post, mes_affected_pre, var_equal = FALSE, "MES affected"),
+  tidy_t(data_processed, mes_imagination_post, mes_imagination_pre, var_equal = FALSE, "MES imagination"),
   
-  tidy_t(data_processed, tssq_active_pre, tssq_active_post, var_equal = TRUE, "TSSQ active"),
-  tidy_t(data_processed, tssq_conceptualization_pre, tssq_conceptualization_post, var_equal = TRUE, "TSSQ conceptualization"),
-  tidy_t(data_processed, tssq_present_pre, tssq_present_post, var_equal = TRUE, "TSSQ present")
+  tidy_t(data_processed, tssq_active_post, tssq_active_pre, var_equal = TRUE, "TSSQ active"),
+  tidy_t(data_processed, tssq_conceptualization_post, tssq_conceptualization_pre, var_equal = TRUE, "TSSQ conceptualization"),
+  tidy_t(data_processed, tssq_present_post, tssq_present_pre, var_equal = TRUE, "TSSQ present")
 )
 
 res_t |>
@@ -199,24 +217,11 @@ ggplot(res_t, aes(mean_diff, outcome)) +
 
 Note that upper 95% CIs for MES PT and IRI PT are Inf because these use one-sided tests, as in the original article.
 
-The verification analysis found significant *decreases* in the following variables:
+The verification analysis found significant *increases* in the following variables:
 
+- MES PT
 - MES other
 - MES affectedness
-
-Note that if the one-sided test had been in the other direction, significant decreases would have been found for the MES PT:
-
-```{r}
-
-tidy_t(data_processed, mes_perspective_pre, mes_perspective_post, var_equal = TRUE, "MES PT", alternative = "less") |>
-  mutate(mean_diff = round_half_up(mean_diff, 2),
-         t = round_half_up(t, 2),
-         p = round_half_up(p, 4),
-         d_z = round_half_up(d_z, 2)) |>
-  kable() |>
-  kable_classic(full_width = FALSE)
-
-```
 
 ### N exclusions 
 
@@ -224,7 +229,7 @@ Original article stated "df for all subscales of IRI, Imagination, Affectedness,
 
 These were not reproduced for any variable, suggesting that the description of the exclusion strategy supplied by Ooshima was inaccurately applied by me, or inaccurately described, or inaccurately applied in the original article. 
 
-## Comparing means from Table 2 with reverse scored mean difference scores
+## Comparing means from Table 2 with recomputed mean difference scores
 
 ```{r}
 
@@ -233,10 +238,10 @@ p1 <- ggplot(data_table_2, aes(mean_diff, scale_subscale)) +
   geom_point() +
   theme_linedraw()
 
-p2 <- ggplot(res_t, aes(x = -mean_diff, y = outcome)) +
+p2 <- ggplot(res_t, aes(x = mean_diff, y = outcome)) +
   geom_vline(xintercept = 0, linetype = "dotted") +
   ggstance::geom_linerangeh(
-    aes(xmin = -mean_diff_ci_upper, xmax = -mean_diff_ci_lower)
+    aes(xmin = mean_diff_ci_upper, xmax = mean_diff_ci_lower)
   ) +
   geom_point() +
   theme_linedraw() +
@@ -247,8 +252,6 @@ p2 <- ggplot(res_t, aes(x = -mean_diff, y = outcome)) +
 p1 + p2 + plot_layout(ncol = 1)
 
 ```
-
-Reverse scoring the estimates obtained in the verification broadly reproduces the pattern of results reported in Table 2 of the article. This suggests that perhaps the pre and post data columns were swapped somewhere. The "2_comparison_of_datasets.Rmd" file already showed that the two sets of datasets distributed on the OSF project reversed the pre and post columns for some variables. It is unclear whether the "all_law_data_pre.xlsx" and "all_law_data_post.xlsx" datasets have swapped these columns and the original article employed the correct original data, or whether the original article employed incorrectly reversed data.
 
 # Session info
 
