@@ -185,18 +185,18 @@ ggplot(data_reprocessed, aes(iri_pt_post)) +
 p_iri_orig <- ggplot(data_iri_pt_2, aes(pre, post)) +
   scale_x_continuous(limits = c(10, 40)) +
   scale_y_continuous(limits = c(10, 40)) +
-  #geom_point(alpha = 0.6) +
-  geom_jitter(alpha = 0.6, width = .2, height = .2, color = "#35B779FF") +
+  geom_point(alpha = 0.3) +
+  #geom_jitter(alpha = 0.3, width = .2, height = .2, color = "#35B779FF") +
   theme_linedraw() +
   ggtitle("Data for the IRI PT subscale\nfrom the 'for analysis' file")
 
 p_iri_orig
 
 p_iri_new <- ggplot(data_reprocessed, aes(iri_pt_pre, iri_pt_post)) +
-  scale_x_continuous(limits = c(4, 37), name = "pre") +
-  scale_y_continuous(limits = c(4, 37), name = "post") +
-  #geom_point(alpha = 0.6) +
-  geom_jitter(alpha = 0.6, width = .2, height = .2, color = "#31688EFF") +
+  scale_x_continuous(limits = c(10, 40), name = "pre") +
+  scale_y_continuous(limits = c(10, 40), name = "post") +
+  geom_point(alpha = 0.3) +
+  #geom_jitter(alpha = 0.3, width = .2, height = .2, color = "#31688EFF") +
   theme_linedraw() +
   ggtitle("Data for the IRI PT subscale\nreprocessed from the item-level data")
 
@@ -208,25 +208,15 @@ p_iri_new
 
 ```{r fig.height=4, fig.width=4}
 
-p_iri_orig <- ggplot(data_iri_pt_2, aes(pre, post)) +
-  scale_x_continuous(limits = c(10, 40)) +
-  scale_y_continuous(limits = c(10, 40)) +
-  #geom_point(alpha = 0.6) +
-  geom_jitter(alpha = 0.6, width = .2, height = .2, color = "#35B779FF") +
-  theme_linedraw() +
-  ggtitle("Data for the IRI PT subscale\nfrom the 'for analysis' file")
-
-p_iri_orig
-
-p_iri_new <- ggplot(data_reprocessed, aes(iri_pt_pre_alt, iri_pt_post_alt)) +
-  scale_x_continuous(limits = c(4, 37), name = "pre") +
-  scale_y_continuous(limits = c(4, 37), name = "post") +
-  #geom_point(alpha = 0.6) +
-  geom_jitter(alpha = 0.6, width = .2, height = .2, color = "#31688EFF") +
+p_iri_new_alt <- ggplot(data_reprocessed, aes(iri_pt_pre_alt, iri_pt_post_alt)) +
+  scale_x_continuous(limits = c(10, 40), name = "pre") +
+  scale_y_continuous(limits = c(10, 40), name = "post") +
+  geom_point(alpha = 0.3) +
+  #geom_jitter(alpha = 0.3, width = .2, height = .2, color = "#31688EFF") +
   theme_linedraw() +
   ggtitle("Data for the IRI PT subscale\nreprocessed from the item-level data")
 
-p_iri_new
+p_iri_new_alt
 
 ```
 
@@ -238,6 +228,7 @@ p_iri_new
 
 ggplot(data_mes_pt_2, aes(pre)) +
   scale_x_continuous(limits = c(10, 30)) +
+  scale_y_continuous(limits = c(10, 30)) +
   geom_histogram() +
   theme_linedraw() +
   ggtitle("Data for the MES PT subscale at pre\nfrom the 'for analysis' file")
@@ -256,6 +247,7 @@ ggplot(data_reprocessed, aes(mes_perspective_pre)) +
 
 ggplot(data_mes_pt_2, aes(post)) +
   scale_x_continuous(limits = c(10, 30)) +
+  scale_y_continuous(limits = c(10, 30)) +
   geom_histogram() +
   theme_linedraw() +
   ggtitle("Data for the MES PT subscale at post\nfrom the 'for analysis' file")
@@ -275,8 +267,8 @@ ggplot(data_reprocessed, aes(mes_perspective_post)) +
 p_mes_orig <- ggplot(data_mes_pt_2, aes(pre, post)) +
   scale_x_continuous(limits = c(10, 30)) +
   scale_y_continuous(limits = c(10, 30)) +
-  #geom_point(alpha = 0.6) +
-  geom_jitter(alpha = 0.6, width = .2, height = .2, color = "#35B779FF") +
+  geom_point(alpha = 0.3) +
+  #geom_jitter(alpha = 0.3, width = .2, height = .2, color = "#35B779FF") +
   theme_linedraw() +
   ggtitle("Data for the MES PT subscale\nfrom the 'for analysis' file")
 
@@ -285,8 +277,8 @@ p_mes_orig
 p_mes_new <- ggplot(data_reprocessed, aes(mes_perspective_pre, mes_perspective_post)) +
   scale_x_continuous(limits = c(10, 30), name = "pre") +
   scale_y_continuous(limits = c(10, 30), name = "post") +
-  #geom_point(alpha = 0.6) +
-  geom_jitter(alpha = 0.6, width = .2, height = .2, color = "#31688EFF") +
+  geom_point(alpha = 0.3) +
+  #geom_jitter(alpha = 0.3, width = .2, height = .2, color = "#31688EFF") +
   theme_linedraw() +
   ggtitle("Data for the MES PT subscale\nreprocessed from the item-level data")
 
@@ -339,8 +331,8 @@ ggplot(data_reprocessed, aes(tssq_perspective_post)) +
 p_tssq_orig <- ggplot(data_tssq_pt_2, aes(pre, post)) +
   scale_x_continuous(limits = c(0, 25)) +
   scale_y_continuous(limits = c(0, 25)) +
-  #geom_point(alpha = 0.6) +
-  geom_jitter(alpha = 0.6, width = .2, height = .2, color = "#35B779FF") +
+  geom_point(alpha = 0.3) +
+  #geom_jitter(alpha = 0.3, width = .2, height = .2, color = "#35B779FF") +
   theme_linedraw() +
   ggtitle("Data for the TSSQ PT subscale\nfrom the 'for analysis' file")
 
@@ -349,8 +341,8 @@ p_tssq_orig
 p_tssq_new <- ggplot(data_reprocessed, aes(tssq_perspective_pre, tssq_perspective_post)) +
   scale_x_continuous(limits = c(0, 25), name = "pre") +
   scale_y_continuous(limits = c(0, 25), name = "post") +
-  #geom_point(alpha = 0.6) +
-  geom_jitter(alpha = 0.6, width = .2, height = .2, color = "#31688EFF") +
+  geom_point(alpha = 0.3) +
+  #geom_jitter(alpha = 0.3, width = .2, height = .2, color = "#31688EFF") +
   theme_linedraw() +
   ggtitle("Data for the TSSQ PT subscale\nreprocessed from the item-level data")
 
